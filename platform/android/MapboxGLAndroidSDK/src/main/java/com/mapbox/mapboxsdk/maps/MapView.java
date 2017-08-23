@@ -1015,4 +1015,8 @@ public class MapView extends FrameLayout {
       onMapReadyCallbackList.add(callback);
     }
   }
+
+  public NativeCameraPosition getCameraPosition(){
+    return new NativeCameraPosition(nativeMapView);
+  }
 }
