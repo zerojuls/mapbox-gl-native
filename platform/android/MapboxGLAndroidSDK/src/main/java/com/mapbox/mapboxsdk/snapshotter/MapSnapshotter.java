@@ -7,12 +7,20 @@ import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.text.Html;
+import android.text.Spanned;
+import android.view.View;
+import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.storage.FileSource;
+
+import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * The map snapshotter creates a bitmap of the map, rendered
@@ -251,11 +259,43 @@ public class MapSnapshotter {
     nativeCancel();
   }
 
-  protected void addOverlay(Bitmap original) {
-    float margin = context.getResources().getDisplayMetrics().density * LOGO_MARGIN_PX;
+  protected void addOverlay(MapSnapshot mapSnapshot) {
+    Bitmap original = mapSnapshot.getBitmap();
     Canvas canvas = new Canvas(original);
+    addLogo(canvas, original.getHeight());
+    addAttribution(canvas, mapSnapshot);
+  }
+
+  private void addLogo(Canvas canvas, float snapshotHeight) {
+    float margin = context.getResources().getDisplayMetrics().density * LOGO_MARGIN_PX;
     Bitmap logo = BitmapFactory.decodeResource(context.getResources(), R.drawable.mapbox_logo_icon, null);
-    canvas.drawBitmap(logo, margin, original.getHeight() - (logo.getHeight() + margin), null);
+    canvas.drawBitmap(logo, margin, snapshotHeight - (logo.getHeight() + margin), null);
+  }
+
+  private void addAttribution(Canvas canvas, MapSnapshot mapSnapshot) {
+    Bitmap original = mapSnapshot.getBitmap();
+    TextView textView = new TextView(context);
+    textView.setTextSize(14);
+    for (String attr : mapSnapshot.getAttributions()) {
+      Timber.e(attr);
+      textView.setText(fromHtml(attr));
+      int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(original.getWidth(), View.MeasureSpec.AT_MOST);
+      int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+      textView.measure(widthMeasureSpec, heightMeasureSpec);
+      textView.layout(0, 0, original.getWidth(), original.getHeight());
+      textView.draw(canvas);
+      return;
+    }
+  }
+
+  public static Spanned fromHtml(String html) {
+    Spanned result;
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+      result = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+    } else {
+      result = Html.fromHtml(html);
+    }
+    return result;
   }
 
   /**
@@ -266,7 +306,7 @@ public class MapSnapshotter {
    */
   protected void onSnapshotReady(MapSnapshot snapshot) {
     if (callback != null) {
-      addOverlay(snapshot.getBitmap());
+      addOverlay(snapshot);
       callback.onSnapshotReady(snapshot);
       reset();
     }
