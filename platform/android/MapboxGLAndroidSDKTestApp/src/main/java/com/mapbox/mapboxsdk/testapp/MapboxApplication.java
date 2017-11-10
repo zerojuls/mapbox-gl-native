@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.testapp.utils.TokenUtils;
-import com.squareup.leakcanary.LeakCanary;
 
 import timber.log.Timber;
 
@@ -30,12 +29,12 @@ public class MapboxApplication extends Application {
   public void onCreate() {
     super.onCreate();
 
-    if (LeakCanary.isInAnalyzerProcess(this)) {
-      // This process is dedicated to LeakCanary for heap analysis.
-      // You should not init your app in this process.
-      return;
-    }
-    LeakCanary.install(this);
+//    if (LeakCanary.isInAnalyzerProcess(this)) {
+//      // This process is dedicated to LeakCanary for heap analysis.
+//      // You should not init your app in this process.
+//      return;
+//    }
+//    LeakCanary.install(this);
 
     initializeLogger();
 
