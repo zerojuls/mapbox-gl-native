@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +26,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.mapboxsdk.testapp.R;
-import com.mapbox.mapboxsdk.testapp.utils.ResourceUtils;
+import com.mapbox.mapboxsdk.testapp.utils.GeoParseUtil;
 import com.mapbox.services.commons.geojson.Feature;
 import com.mapbox.services.commons.geojson.FeatureCollection;
 import com.mapbox.services.commons.geojson.Geometry;
@@ -48,8 +50,8 @@ public class SymbolGeneratorActivity extends AppCompatActivity implements OnMapR
 
   private static final String SOURCE_ID = "com.mapbox.mapboxsdk.style.layers.symbol.source.id";
   private static final String LAYER_ID = "com.mapbox.mapboxsdk.style.layers.symbol.layer.id";
-  private static final String FEATURE_ID = "brk_name";
-  private static final String FEATURE_VALUE = "name_sort";
+  private static final String FEATURE_ID = "NAME";
+  private static final String FEATURE_VALUE = "DESCRIPTIO";
 
   private MapView mapView;
   private MapboxMap mapboxMap;
@@ -176,27 +178,27 @@ public class SymbolGeneratorActivity extends AppCompatActivity implements OnMapR
     }
   }
 
-  private static class LoadDataTask extends AsyncTask<Void, Void, FeatureCollection> {
+  private static class LoadDataTask extends AsyncTask<Void, Context, FeatureCollection> {
 
     private final MapboxMap mapboxMap;
     private final Context context;
 
     LoadDataTask(MapboxMap mapboxMap, Context context) {
       this.mapboxMap = mapboxMap;
-      this.context = context;
+      this.context = context.getApplicationContext();
     }
 
     @Override
     protected FeatureCollection doInBackground(Void... params) {
       try {
         // read local geojson from raw folder
-        String tinyCountriesJson = ResourceUtils.readRawResource(context, R.raw.tiny_countries);
+        String geojson = GeoParseUtil.loadStringFromAssets(context, "points.geojson");
 
         // convert geojson to a model
         FeatureCollection featureCollection = new GsonBuilder()
           .registerTypeAdapter(Geometry.class, new GeometryDeserializer())
           .registerTypeAdapter(Position.class, new PositionDeserializer())
-          .create().fromJson(tinyCountriesJson, FeatureCollection.class);
+          .create().fromJson(geojson, FeatureCollection.class);
 
         return featureCollection;
       } catch (IOException exception) {
@@ -235,7 +237,7 @@ public class SymbolGeneratorActivity extends AppCompatActivity implements OnMapR
 
     GenerateSymbolTask(MapboxMap mapboxMap, Context context) {
       this.mapboxMap = mapboxMap;
-      this.context = context;
+      this.context = context.getApplicationContext();
     }
 
     @SuppressWarnings("WrongThread")
@@ -243,15 +245,18 @@ public class SymbolGeneratorActivity extends AppCompatActivity implements OnMapR
     protected HashMap<String, Bitmap> doInBackground(FeatureCollection... params) {
       FeatureCollection featureCollection = params[0];
 
+      TextView textView = new TextView(context);
+
       HashMap<String, Bitmap> imagesMap = new HashMap<>();
+      textView.setBackgroundColor(context.getResources().getColor(R.color.blueAccent));
+      textView.setPadding(10, 5, 10, 5);
+      textView.setTextColor(Color.WHITE);
+      textView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
       for (Feature feature : featureCollection.getFeatures()) {
-        String countryName = feature.getStringProperty(FEATURE_ID);
-        TextView textView = new TextView(context);
-        textView.setBackgroundColor(context.getResources().getColor(R.color.blueAccent));
-        textView.setPadding(10, 5, 10, 5);
-        textView.setTextColor(Color.WHITE);
-        textView.setText(countryName);
-        imagesMap.put(countryName, SymbolGenerator.generate(textView));
+        String id = feature.getStringProperty(FEATURE_ID);
+
+        textView.setText(id);
+        imagesMap.put(id, SymbolGenerator.generate(textView));
       }
       return imagesMap;
     }
