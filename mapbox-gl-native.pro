@@ -1,12 +1,8 @@
 TARGET = qmapboxgl
 
-load(qt_helper_lib)
+CONFIG += qt c++14 exceptions warn_off object_parallel_to_source
 
-CONFIG += qt c++14 exceptions warn_off staticlib object_parallel_to_source
-
-QT += network-private \
-      gui-private \
-      sql-private
+QT += widgets network gui sql
 
 QMAKE_CXXFLAGS += \
     -DNDEBUG \
@@ -18,6 +14,9 @@ QMAKE_CXXFLAGS += \
     -ftemplate-depth=1024 \
     -fvisibility-inlines-hidden \
     -fvisibility=hidden
+
+LIBS += \
+    -lz
 
 android|win32|darwin {
     SOURCES += \
@@ -40,24 +39,12 @@ win32 {
         -D_USE_MATH_DEFINES
 }
 
-qtConfig(system-zlib) {
-    QMAKE_USE_PRIVATE += zlib
-} else {
-    QT_PRIVATE += zlib-private
-}
-
 # QTBUG-59035
 TR_EXCLUDE += $$PWD/*
 
-qtConfig(icu) {
-    QMAKE_USE_PRIVATE += icu
-
-    SOURCES += \
-        platform/default/bidi.cpp
-} else {
-    SOURCES += \
-        platform/qt/src/bidi.cpp
-}
+# Do not use ICU
+SOURCES += \
+    platform/qt/src/bidi.cpp
 
 SOURCES += \
     platform/qt/src/async_task.cpp \
@@ -74,6 +61,7 @@ SOURCES += \
     platform/qt/src/thread_local.cpp \
     platform/qt/src/timer.cpp \
     platform/qt/src/utf.cpp \
+    platform/qt/src/logging_qt.cpp \
     src/csscolorparser/csscolorparser.cpp \
     src/mbgl/actor/mailbox.cpp \
     src/mbgl/actor/scheduler.cpp \
@@ -319,7 +307,6 @@ SOURCES += \
 	platform/default/default_file_source.cpp \
 	platform/default/file_source_request.cpp \
 	platform/default/local_file_source.cpp \
-	platform/default/logging_stderr.cpp \
 	platform/default/mbgl/storage/offline.cpp \
 	platform/default/mbgl/storage/offline_database.cpp \
 	platform/default/mbgl/storage/offline_download.cpp \
@@ -385,3 +372,14 @@ INCLUDEPATH += \
 
 QMAKE_CXXFLAGS += \
     -DMBGL_VERSION_REV=\\\"qt-v1.1.1\\\"
+
+# The demo application
+SOURCES += \
+    platform/qt/app/main.cpp \
+    platform/qt/app/mapwindow.cpp
+
+HEADERS += \
+    platform/qt/app/mapwindow.hpp
+
+RESOURCES += \
+    platform/qt/resources/common.qrc

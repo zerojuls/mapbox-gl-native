@@ -281,8 +281,11 @@ private:
     std::vector<RenderbufferID> abandonedRenderbuffers;
 
 public:
-    // For testing
+#if defined(_WINDOWS)
+    bool disableVAOExtension = true;
+#else
     bool disableVAOExtension = false;
+#endif
 };
 
 } // namespace gl
