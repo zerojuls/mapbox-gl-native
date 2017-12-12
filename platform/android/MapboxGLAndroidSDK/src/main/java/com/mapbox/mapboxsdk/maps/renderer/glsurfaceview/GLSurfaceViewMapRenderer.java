@@ -4,7 +4,6 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 
 import com.mapbox.mapboxsdk.maps.renderer.MapRenderer;
-import com.mapbox.mapboxsdk.maps.renderer.egl.EGLConfigChooser;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -25,7 +24,8 @@ public class GLSurfaceViewMapRenderer extends MapRenderer implements GLSurfaceVi
     super(context, localIdeographFontFamily);
     this.glSurfaceView = glSurfaceView;
     glSurfaceView.setEGLContextClientVersion(2);
-    glSurfaceView.setEGLConfigChooser(new EGLConfigChooser());
+    glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 8);
+//    glSurfaceView.setEGLConfigChooser(new EGLConfigChooser());
     glSurfaceView.setRenderer(this);
     glSurfaceView.setRenderMode(RENDERMODE_WHEN_DIRTY);
   }

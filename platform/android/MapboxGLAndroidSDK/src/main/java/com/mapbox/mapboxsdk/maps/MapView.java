@@ -1,6 +1,7 @@
 package com.mapbox.mapboxsdk.maps;
 
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -313,8 +315,6 @@ public class MapView extends FrameLayout {
       addView(textureView, 0);
     } else {
       GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
-      glSurfaceView.setZOrderMediaOverlay(mapboxMapOptions.getRenderSurfaceOnTop());
-
       mapRenderer = new GLSurfaceViewMapRenderer(getContext(), glSurfaceView, options.getLocalIdeographFontFamily()) {
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
