@@ -38,7 +38,8 @@ win32 {
         -D_WINDOWS \
         -DNOGDI \
         -DNOMINMAX \
-        -D_USE_MATH_DEFINES
+        -D_USE_MATH_DEFINES \
+        -DQT_COMPILING_QIMAGE_COMPAT_CPP
 }
 
 # QTBUG-59035
