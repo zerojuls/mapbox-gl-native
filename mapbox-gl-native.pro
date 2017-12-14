@@ -349,6 +349,8 @@ INCLUDEPATH += \
     deps/geometry/0.9.2/include \
     deps/kdbush/0.1.1-1 \
     deps/kdbush/0.1.1-1/include \
+    deps/optional/5f08e2e \
+    deps/optional/5f08e2e/include \
     deps/pixelmatch/0.10.0 \
     deps/pixelmatch/0.10.0/include \
     deps/polylabel/1.0.3 \
