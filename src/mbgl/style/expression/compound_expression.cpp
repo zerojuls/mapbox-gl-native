@@ -399,13 +399,13 @@ std::unordered_map<std::string, CompoundExpressionRegistry::Definition> initiali
     define("upcase", [](const std::string& input) -> Result<std::string> {
         std::string s = input;
         std::transform(s.begin(), s.end(), s.begin(),
-                       [](unsigned char c){ return std::toupper(c); });
+                       [](unsigned char c){ return ::toupper(c); });
         return s;
     });
     define("downcase", [](const std::string& input) -> Result<std::string> {
         std::string s = input;
         std::transform(s.begin(), s.end(), s.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
+                       [](unsigned char c){ return ::tolower(c); });
         return s;
     });
     define("concat", [](const Varargs<std::string>& args) -> Result<std::string> {
