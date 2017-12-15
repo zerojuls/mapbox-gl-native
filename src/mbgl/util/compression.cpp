@@ -1,6 +1,10 @@
 #include <mbgl/util/compression.hpp>
 
+#ifdef _WINDOWS && QT_VERSION >= 0x050000
+#include <QtZlib/zlib.h>
+#else
 #include <zlib.h>
+#endif
 
 #include <cstdio>
 #include <cstring>

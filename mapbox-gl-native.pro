@@ -15,8 +15,10 @@ QMAKE_CXXFLAGS += \
     -fvisibility-inlines-hidden \
     -fvisibility=hidden
 
-LIBS += \
-    -lz
+!win32 {
+    LIBS += \
+        -lz
+}
 
 android|win32|darwin {
     SOURCES += \
