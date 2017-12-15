@@ -363,6 +363,8 @@ INCLUDEPATH += \
     deps/shelf-pack/2.1.1/include \
     deps/supercluster/0.2.2 \
     deps/supercluster/0.2.2/include \
+    deps/tao/28626e9 \
+    deps/tao/28626e9/include \
     deps/unique_resource/cba309e \
     deps/unique_resource/cba309e/include \
     deps/variant/1.1.4 \
