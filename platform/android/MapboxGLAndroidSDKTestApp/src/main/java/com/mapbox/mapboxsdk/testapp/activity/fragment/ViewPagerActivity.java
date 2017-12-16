@@ -33,7 +33,7 @@ public class ViewPagerActivity extends AppCompatActivity {
 
   static class MapFragmentAdapter extends FragmentPagerAdapter {
 
-    private static int NUM_ITEMS = 3;
+    private static int NUM_ITEMS = 6;
 
     MapFragmentAdapter(FragmentManager fragmentManager) {
       super(fragmentManager);
@@ -62,6 +62,26 @@ public class ViewPagerActivity extends AppCompatActivity {
           break;
         case 2:
           options.styleUrl(Style.SATELLITE);
+          options.camera(new CameraPosition.Builder().target(new LatLng(-25.007786, 133.623852)).zoom(3).build());
+          fragment = SupportMapFragment.newInstance(options);
+          break;
+        case 3:
+          options.styleUrl(Style.TRAFFIC_NIGHT);
+          options.camera(new CameraPosition.Builder().target(new LatLng(-25.007786, 133.623852)).zoom(3).build());
+          fragment = SupportMapFragment.newInstance(options);
+          break;
+        case 4:
+          options.styleUrl(Style.TRAFFIC_DAY);
+          options.camera(new CameraPosition.Builder().target(new LatLng(-25.007786, 133.623852)).zoom(3).build());
+          fragment = SupportMapFragment.newInstance(options);
+          break;
+        case 5:
+          options.styleUrl(Style.OUTDOORS);
+          options.camera(new CameraPosition.Builder().target(new LatLng(-25.007786, 133.623852)).zoom(3).build());
+          fragment = SupportMapFragment.newInstance(options);
+          break;
+        case 6:
+          options.styleUrl(Style.LIGHT);
           options.camera(new CameraPosition.Builder().target(new LatLng(-25.007786, 133.623852)).zoom(3).build());
           fragment = SupportMapFragment.newInstance(options);
           break;
