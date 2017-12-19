@@ -7,7 +7,8 @@ QT += widgets network gui sql
 QMAKE_CXXFLAGS += \
     -DNDEBUG \
     -DQT_IMAGE_DECODERS \
-    -DRAPIDJSON_HAS_STDSTRING=1 \
+    -DRAPIDJSON_HAS_STDSTRING \
+    -DRAPIDJSON_HAS_CXX11_RVALUE_REFS \
     -DMBGL_USE_GLES2 \
     -D__QT__ \
     -O3 \
