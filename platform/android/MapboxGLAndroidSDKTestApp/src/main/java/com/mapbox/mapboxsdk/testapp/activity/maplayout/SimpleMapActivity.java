@@ -2,65 +2,103 @@ package com.mapbox.mapboxsdk.testapp.activity.maplayout;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import com.mapbox.mapboxsdk.constants.Style;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionError;
+import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
+import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
+import com.mapbox.mapboxsdk.testapp.utils.OfflineUtils;
+import timber.log.Timber;
 
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.testapp.R;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test activity showcasing a simple MapView without any MapboxMap interaction.
  */
-public class SimpleMapActivity extends AppCompatActivity {
+public class SimpleMapActivity extends AppCompatActivity implements OfflineManager.CreateOfflineRegionCallback {
 
-  private MapView mapView;
+  private long timestamp;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_map_simple);
+    int densityDpi = getResources().getDisplayMetrics().densityDpi;
 
-    mapView = (MapView) findViewById(R.id.mapView);
-    mapView.onCreate(savedInstanceState);
+    LatLng southWest = new LatLng(64.149385, -22.036754);
+    LatLng northEast = new LatLng(64.156640, -22.020452);
+    LatLngBounds latLngBounds = new LatLngBounds.Builder().include(southWest).include(northEast).build();
+    OfflineTilePyramidRegionDefinition definition = new OfflineTilePyramidRegionDefinition(Style.MAPBOX_STREETS, latLngBounds, 17, 18, densityDpi);
+
+    long time = Calendar.getInstance().getTimeInMillis();
+    byte[] regionName = OfflineUtils.convertRegionName("test " + getDateCurrentTimeZone(time));
+    OfflineManager.getInstance(this).createOfflineRegion(definition, regionName, this);
   }
 
   @Override
-  protected void onStart() {
-    super.onStart();
-    mapView.onStart();
+  public void onCreate(OfflineRegion offlineRegion) {
+    Timber.e("OfflineRegion created: start your engines!");
+    offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
+      @Override
+      public void onStatusChanged(OfflineRegionStatus status) {
+        // Compute a percentage
+        double percentage = status.getRequiredResourceCount() >= 0
+          ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) :
+          0.0;
+
+        // Debug
+        Timber.d("%s/%s resources; %s bytes downloaded.",
+          String.valueOf(status.getCompletedResourceCount()),
+          String.valueOf(status.getRequiredResourceCount()),
+          String.valueOf(status.getCompletedResourceSize()));
+
+        if (status.isComplete()) {
+          // Download complete
+          Timber.e("Region downloaded");
+          offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
+          offlineRegion.setObserver(null);
+          long endTime = System.nanoTime();
+          long duration = (endTime - timestamp) / 1000000;
+          long minutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+          long seconds = TimeUnit.MILLISECONDS.toSeconds(duration);
+          Timber.e("Time to complete was %s:%s", minutes, seconds);
+        }
+      }
+
+      @Override
+      public void onError(OfflineRegionError error) {
+
+      }
+
+      @Override
+      public void mapboxTileCountLimitExceeded(long limit) {
+
+      }
+    });
+
+    timestamp = System.nanoTime();
+    offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
   }
 
   @Override
-  protected void onResume() {
-    super.onResume();
-    mapView.onResume();
+  public void onError(String error) {
+    Timber.e("OnError %s", error);
   }
 
-  @Override
-  protected void onPause() {
-    super.onPause();
-    mapView.onPause();
-  }
-
-  @Override
-  protected void onStop() {
-    super.onStop();
-    mapView.onStop();
-  }
-
-  @Override
-  public void onLowMemory() {
-    super.onLowMemory();
-    mapView.onLowMemory();
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    mapView.onDestroy();
-  }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    mapView.onSaveInstanceState(outState);
+  public String getDateCurrentTimeZone(long timestamp) {
+    Calendar calendar = Calendar.getInstance();
+    TimeZone tz = TimeZone.getDefault();
+    calendar.setTimeInMillis(timestamp * 1000);
+    calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    Date currenTimeZone = calendar.getTime();
+    return sdf.format(currenTimeZone);
   }
 }

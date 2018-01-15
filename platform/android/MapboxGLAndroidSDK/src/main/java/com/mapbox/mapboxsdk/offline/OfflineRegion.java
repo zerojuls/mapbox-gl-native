@@ -256,15 +256,17 @@ public class OfflineRegion {
     setOfflineRegionObserver(new OfflineRegionObserver() {
       @Override
       public void onStatusChanged(final OfflineRegionStatus status) {
-        if (deliverMessages()) {
-          getHandler().post(new Runnable() {
-            @Override
-            public void run() {
-              if (observer != null) {
-                observer.onStatusChanged(status);
+        if(status.isComplete()){
+          if (deliverMessages()) {
+            getHandler().post(new Runnable() {
+              @Override
+              public void run() {
+                if (observer != null) {
+                  observer.onStatusChanged(status);
+                }
               }
-            }
-          });
+            });
+          }
         }
       }
 
