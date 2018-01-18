@@ -1,6 +1,6 @@
 package com.mapbox.mapboxsdk.maps;
 
-class Image {
+public class Image {
   private final byte[] buffer;
   private final float pixelRatio;
   private final String name;

@@ -1132,49 +1132,5 @@ final class NativeMapView {
   // Image conversion
   //
 
-  private static class BitmapImageConversionTask extends AsyncTask<HashMap<String, Bitmap>, Void, List<Image>> {
 
-    private NativeMapView nativeMapView;
-
-    BitmapImageConversionTask(NativeMapView nativeMapView) {
-      this.nativeMapView = nativeMapView;
-    }
-
-    @Override
-    protected List<Image> doInBackground(HashMap<String, Bitmap>... params) {
-      HashMap<String, Bitmap> bitmapHashMap = params[0];
-
-      List<Image> images = new ArrayList<>();
-      ByteBuffer buffer;
-      String name;
-      Bitmap bitmap;
-
-      for (Map.Entry<String, Bitmap> stringBitmapEntry : bitmapHashMap.entrySet()) {
-        name = stringBitmapEntry.getKey();
-        bitmap = stringBitmapEntry.getValue();
-
-        if (bitmap.getConfig() != Bitmap.Config.ARGB_8888) {
-          bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false);
-        }
-
-        buffer = ByteBuffer.allocate(bitmap.getByteCount());
-        bitmap.copyPixelsToBuffer(buffer);
-
-        float density = bitmap.getDensity() == Bitmap.DENSITY_NONE ? Bitmap.DENSITY_NONE : bitmap.getDensity();
-        float pixelRatio = density / DisplayMetrics.DENSITY_DEFAULT;
-
-        images.add(new Image(buffer.array(), pixelRatio, name, bitmap.getWidth(), bitmap.getHeight()));
-      }
-
-      return images;
-    }
-
-    @Override
-    protected void onPostExecute(List<Image> images) {
-      super.onPostExecute(images);
-      if (nativeMapView != null && !nativeMapView.isDestroyedOn("nativeAddImages")) {
-        nativeMapView.nativeAddImages(images.toArray(new Image[images.size()]));
-      }
-    }
-  }
 }
