@@ -28,6 +28,10 @@ public class Style {
   private String url;
   private String json;
 
+  private Style(int nativePtr) {
+    this.nativePtr = nativePtr;
+  }
+
   // todo make private
   Style() {
     initialize();
