@@ -3,10 +3,10 @@ apply plugin: 'com.android.library'
 dependencies {
     api dependenciesList.mapboxAndroidTelemetry
     api dependenciesList.mapboxJavaGeoJSON
-    implementation dependenciesList.supportAnnotations
-    implementation dependenciesList.supportFragmentV4
-    implementation dependenciesList.timber
-    implementation dependenciesList.okhttp3
+    api dependenciesList.supportAnnotations
+    api dependenciesList.supportFragmentV4
+    api dependenciesList.timber
+    api dependenciesList.okhttp3
     compileOnly(dependenciesList.lost) {
         exclude group: 'com.google.guava'
         exclude group: 'com.android.support'

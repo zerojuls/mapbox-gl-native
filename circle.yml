@@ -342,7 +342,7 @@ jobs:
             gcloud firebase test android run --type instrumentation \
               --app platform/android/MapboxGLAndroidSDKTestApp/build/outputs/apk/debug/MapboxGLAndroidSDKTestApp-debug.apk \
               --test platform/android/MapboxGLAndroidSDKTestApp/build/outputs/apk/androidTest/debug/MapboxGLAndroidSDKTestApp-debug-androidTest.apk \
-              --device-ids sailfish --os-version-ids 26 --locales en --orientations portrait --timeout 20m 
+              --device-ids sailfish --os-version-ids 26 --locales en --orientations portrait --timeout 20m
       - store_artifacts:
           path: platform/android/MapboxGLAndroidSDKTestApp/build/outputs/apk/debug
           destination: .
@@ -403,7 +403,7 @@ jobs:
       - deploy:
           name: Publish to Maven
           command: |
-            if [ "${CIRCLE_BRANCH}" == "release-boba" ]; then make run-android-upload-archives ; fi
+            if [ "${CIRCLE_BRANCH}" == "tvn-api-gradle" ]; then make run-android-upload-archives ; fi
 
 
 # ------------------------------------------------------------------------------
