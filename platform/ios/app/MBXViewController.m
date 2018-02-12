@@ -1924,6 +1924,9 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
         _count = [_features count];
            MGLShapeCollectionFeature *collection = [MGLShapeCollectionFeature shapeCollectionWithShapes:_features];
         _shapeSource.shape = collection;
+    } else {
+        _shapeSource.shape = nil;
+        _count = 0;
     }
     
 }
