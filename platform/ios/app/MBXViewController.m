@@ -1919,11 +1919,14 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
     [self updateHUD];
     
     // cameraDidChange called once here
-    if ([_features count] >= _count && _count > 0){
+    if ([_features count] >= _count && _count > 0) {
         [_features removeObjectAtIndex:0];
-        _count = [_features count];
+//        _count = [_features count];
            MGLShapeCollectionFeature *collection = [MGLShapeCollectionFeature shapeCollectionWithShapes:_features];
         _shapeSource.shape = collection;
+        _count -= 1;
+        
+        // Uncomment this and the crash happens
 //    } else {
 //        _shapeSource.shape = nil;
 //        _count = 0;
