@@ -124,6 +124,9 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
 @property (nonatomic) BOOL usingLocaleBasedCountryLabels;
 @property (nonatomic) BOOL reuseQueueStatsEnabled;
 @property (nonatomic) BOOL showZoomLevelEnabled;
+@property (nonatomic) MGLShapeSource *shapeSource;
+@property (nonatomic) NSMutableArray *features;
+@property (nonatomic) NSInteger count;
 
 @end
 
@@ -206,6 +209,8 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
         }
         [self presentViewController:alertController animated:YES completion:nil];
     }
+    _count = 0;
+    
 }
 
 - (void)saveState:(__unused NSNotification *)notification
@@ -1882,6 +1887,27 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
     // that a device with an English-language locale is already effectively
     // using locale-based country labels.
     _usingLocaleBasedCountryLabels = [[self bestLanguageForUser] isEqualToString:@"en"];
+    _features = [[NSMutableArray alloc] init];
+    for (NSUInteger i = 0; i <= 180; i+=5) {
+        
+        CLLocationCoordinate2D coord[4] = {
+            CLLocationCoordinate2DMake(round(0), round(i)),
+            CLLocationCoordinate2DMake(round(20), round(i)),
+            CLLocationCoordinate2DMake(round(0), round(i / 2 )),
+            CLLocationCoordinate2DMake(round(20), round(i / 2))};
+        
+        MGLPolygonFeature *feature = [MGLPolygonFeature polygonWithCoordinates:coord count:4];
+        [_features addObject:feature];
+        _count += 1;
+        }
+    
+    _shapeSource = [[MGLShapeSource alloc] initWithIdentifier:@"source" features:_features options:nil];
+    [style addSource:_shapeSource];
+    
+    MGLFillStyleLayer *layer = [[MGLFillStyleLayer alloc] initWithIdentifier:@"layer" source:_shapeSource];
+    layer.fillOpacity = [NSExpression expressionForConstantValue:@0.5];
+    [style addLayer:layer];
+    
 }
 
 - (void)mapViewRegionIsChanging:(MGLMapView *)mapView
@@ -1891,6 +1917,15 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
 
 - (void)mapView:(MGLMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
     [self updateHUD];
+    
+    // cameraDidChange called once here
+    if ([_features count] > _count && _count > 0){
+        [_features removeObjectAtIndex:0];
+        _count = [_features count];
+           MGLShapeCollectionFeature *collection = [MGLShapeCollectionFeature shapeCollectionWithShapes:_features];
+        _shapeSource.shape = collection;
+    }
+    
 }
 
 - (void)mapView:(MGLMapView *)mapView didUpdateUserLocation:(MGLUserLocation *)userLocation {
