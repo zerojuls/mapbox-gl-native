@@ -77,8 +77,9 @@ struct Converter<jni::jobject*, mbgl::style::DataDrivenPropertyValue<T>> {
 template <>
 struct Converter<jni::jobject*, mbgl::style::HeatmapColorPropertyValue> {
 
-    Result<jni::jobject*> operator()(jni::JNIEnv& env, const mbgl::style::HeatmapColorPropertyValue& value) const {
-       return convert<jni::jobject*>(env, value);
+    Result<jni::jobject*> operator()(jni::JNIEnv& env, const mbgl::style::HeatmapColorPropertyValue value) const {
+       PropertyValueEvaluator<mbgl::Color> evaluator(env);
+       return value.evaluate(evaluator);
     }
 };
 
