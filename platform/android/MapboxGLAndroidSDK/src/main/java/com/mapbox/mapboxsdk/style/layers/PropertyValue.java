@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.mapbox.mapboxsdk.exceptions.ConversionException;
-import com.mapbox.mapboxsdk.style.functions.Function;
 import com.mapbox.mapboxsdk.utils.ColorUtils;
 
 import timber.log.Timber;
@@ -40,32 +39,12 @@ public class PropertyValue<T> {
   }
 
   /**
-   * Returns if this is a function.
-   *
-   * @return true if is a function, false if not
-   */
-  public boolean isFunction() {
-    return !isNull() && value instanceof Function;
-  }
-
-  /**
    * Returns if this is a value.
    *
    * @return true if is a value, false if not
    */
   public boolean isValue() {
-    return !isNull() && !isFunction();
-  }
-
-  @Nullable
-  public Function<?, T> getFunction() {
-    if (isFunction()) {
-      // noinspection unchecked
-      return (Function<?, T>) value;
-    } else {
-      Timber.w("not a function, try value");
-      return null;
-    }
+    return !isNull();
   }
 
   /**

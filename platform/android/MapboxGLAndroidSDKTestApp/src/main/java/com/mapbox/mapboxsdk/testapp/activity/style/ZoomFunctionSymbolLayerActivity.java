@@ -17,16 +17,15 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.testapp.R;
 
-
 import java.util.List;
 
 import timber.log.Timber;
 
-import static com.mapbox.mapboxsdk.style.functions.Function.property;
-import static com.mapbox.mapboxsdk.style.functions.Function.zoom;
-import static com.mapbox.mapboxsdk.style.functions.stops.Stop.stop;
-import static com.mapbox.mapboxsdk.style.functions.stops.Stops.categorical;
-import static com.mapbox.mapboxsdk.style.functions.stops.Stops.interval;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.linear;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
@@ -101,20 +100,17 @@ public class ZoomFunctionSymbolLayerActivity extends AppCompatActivity {
     layer = new SymbolLayer(LAYER_ID, SOURCE_ID);
     layer.setProperties(
       iconImage(
-        zoom(
-          interval(
-            stop(ZOOM_STOP_MIN_VALUE, iconImage(BUS_MAKI_ICON_ID)),
-            stop(ZOOM_STOP_MAX_VALUE, iconImage(CAFE_MAKI_ICON_ID))
-          )
+        interpolate(
+          linear(), zoom(),
+          stop(ZOOM_STOP_MIN_VALUE, iconImage(BUS_MAKI_ICON_ID)),
+          stop(ZOOM_STOP_MAX_VALUE, iconImage(CAFE_MAKI_ICON_ID))
         )
       ),
       iconSize(
-        property(
-          KEY_PROPERTY_SELECTED,
-          categorical(
-            stop(true, iconSize(3.0f)),
-            stop(false, iconSize(1.0f))
-          )
+        interpolate(
+          linear(), get(KEY_PROPERTY_SELECTED),
+          stop(true, iconSize(3.0f)),
+          stop(false, iconSize(1.0f))
         )
       ),
       iconAllowOverlap(true)

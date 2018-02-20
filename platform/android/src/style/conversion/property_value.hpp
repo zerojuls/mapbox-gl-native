@@ -5,7 +5,6 @@
 #include "../../conversion/conversion.hpp"
 #include "../../conversion/constant.hpp"
 #include "types.hpp"
-#include "function.hpp"
 
 namespace mbgl {
 namespace android {
@@ -29,17 +28,17 @@ public:
         return *result;
     }
 
-    jni::jobject* operator()(const mbgl::style::CameraFunction<T> &value) const {
-        return *convert<jni::jobject*, mbgl::style::CameraFunction<T>>(env, value);
-    }
-
-    jni::jobject* operator()(const mbgl::style::SourceFunction<T> &value) const {
-        return *convert<jni::jobject*, mbgl::style::SourceFunction<T>>(env, value);
-    }
-
-    jni::jobject* operator()(const mbgl::style::CompositeFunction<T> &value) const {
-      return *convert<jni::jobject*, mbgl::style::CompositeFunction<T>>(env, value);
-    }
+//    jni::jobject* operator()(const mbgl::style::CameraFunction<T> &value) const {
+//        return *convert<jni::jobject*, mbgl::style::CameraFunction<T>>(env, value);
+//    }
+//
+//    jni::jobject* operator()(const mbgl::style::SourceFunction<T> &value) const {
+//        return *convert<jni::jobject*, mbgl::style::SourceFunction<T>>(env, value);
+//    }
+//
+//    jni::jobject* operator()(const mbgl::style::CompositeFunction<T> &value) const {
+//      return *convert<jni::jobject*, mbgl::style::CompositeFunction<T>>(env, value);
+//    }
 
 private:
     jni::JNIEnv& env;
