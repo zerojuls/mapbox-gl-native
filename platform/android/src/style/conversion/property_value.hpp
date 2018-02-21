@@ -6,6 +6,7 @@
 #include "../../conversion/constant.hpp"
 #include "types.hpp"
 #include "function.hpp"
+#include "json.hpp"
 
 namespace mbgl {
 namespace android {
@@ -34,6 +35,7 @@ public:
     }
 
     jni::jobject* operator()(const mbgl::style::SourceFunction<T> &value) const {
+        Result<jni::jobject*> result = convert<jni::jobject*>(env, value.getExpression().serialize());
         return *convert<jni::jobject*, mbgl::style::SourceFunction<T>>(env, value);
     }
 

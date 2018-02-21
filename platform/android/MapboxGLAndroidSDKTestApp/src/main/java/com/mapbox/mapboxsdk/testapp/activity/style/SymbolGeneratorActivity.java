@@ -20,13 +20,13 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Filter;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.mapboxsdk.testapp.R;
 import com.mapbox.mapboxsdk.testapp.utils.ResourceUtils;
-
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -226,19 +226,16 @@ public class SymbolGeneratorActivity extends AppCompatActivity implements OnMapR
   }
 
   public void onDataLoaded(@NonNull FeatureCollection featureCollection) {
-    // add a geojson to the map
-    Source source = new GeoJsonSource(SOURCE_ID, featureCollection);
-    mapboxMap.addSource(source);
+    Expression iconSizeExpression = division(get(literal(FEATURE_RANK)), literal(2));
 
-    // create layer use
-    mapboxMap.addLayer(new SymbolLayer(LAYER_ID, SOURCE_ID)
+    SymbolLayer symbolLayer = new SymbolLayer(LAYER_ID, SOURCE_ID)
       .withProperties(
 
         // icon configuration
         iconImage(get(literal(FEATURE_ID))),
         iconAllowOverlap(false),
         iconSize(
-          division(get(literal(FEATURE_RANK)), literal(2))
+          iconSizeExpression
         ),
         iconAnchor(ICON_ANCHOR_BOTTOM),
         iconOffset(new Float[] {0.0f, -5.0f}),
@@ -256,8 +253,24 @@ public class SymbolGeneratorActivity extends AppCompatActivity implements OnMapR
           product(get(literal(FEATURE_RANK)), pi())
         ),
         textAnchor(TEXT_ANCHOR_TOP)
-      )
-    );
+      );
+
+    // add a geojson to the map
+    Source source = new GeoJsonSource(SOURCE_ID, featureCollection);
+    mapboxMap.addSource(source);
+
+    // create layer use
+    mapboxMap.addLayer(symbolLayer);
+
+    Timber.e((symbolLayer.getIconSize().getFunction().getExpression()).toString());
+
+    Expression result = symbolLayer.getIconSize().getFunction().getExpression();
+
+    if (iconSizeExpression.equals(result)) {
+      Timber.e("PERFECT");
+    } else {
+      Timber.e("FAIL");
+    }
 
     new GenerateSymbolTask(mapboxMap, this).execute(featureCollection);
   }

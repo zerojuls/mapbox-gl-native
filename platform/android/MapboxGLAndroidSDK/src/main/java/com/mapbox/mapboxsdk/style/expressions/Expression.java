@@ -10,6 +10,8 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * The value for any layout property, paint property, or filter may be specified as an expression.
  * An expression defines a formula for computing the value of the property using the operators described below.
@@ -1793,5 +1795,10 @@ public class Expression<T> {
     }
     builder.append("]");
     return builder.toString();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return this.toString().equals(obj.toString());
   }
 }
