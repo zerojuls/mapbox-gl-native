@@ -21,9 +21,12 @@ import java.net.URL;
 
 import timber.log.Timber;
 
-import static com.mapbox.mapboxsdk.style.layers.Filter.all;
-import static com.mapbox.mapboxsdk.style.layers.Filter.gte;
-import static com.mapbox.mapboxsdk.style.layers.Filter.lt;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.number;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
@@ -124,7 +127,7 @@ public class GeoJsonClusteringActivity extends AppCompatActivity {
         )
       );
     } catch (MalformedURLException malformedUrlException) {
-      Timber.e(malformedUrlException,"That's not an url... ");
+      Timber.e(malformedUrlException, "That's not an url... ");
     }
 
     // Add unclustered layer
@@ -147,8 +150,12 @@ public class GeoJsonClusteringActivity extends AppCompatActivity {
       );
       circles.setFilter(
         i == 0
-          ? gte("point_count", layers[i][0]) :
-          all(gte("point_count", layers[i][0]), lt("point_count", layers[i - 1][0]))
+          ?
+          gte(number(get("point_count")), literal(layers[i][0])) :
+          all(
+            gte(number(get("point_count")), literal(layers[i][0])),
+            lt(number(get("point_count")), literal(layers[i - 1][0]))
+          )
       );
       mapboxMap.addLayer(circles);
     }

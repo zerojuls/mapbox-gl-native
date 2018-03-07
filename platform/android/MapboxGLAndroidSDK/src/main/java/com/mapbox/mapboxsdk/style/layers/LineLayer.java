@@ -8,6 +8,7 @@ import android.support.annotation.UiThread;
 
 import static com.mapbox.mapboxsdk.utils.ColorUtils.rgbaToColor;
 
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.TransitionOptions;
 
 /**
@@ -71,20 +72,20 @@ public class LineLayer extends Layer {
   /**
    * Set a single filter.
    *
-   * @param filter the filter to set
+   * @param expression the expression filter to set
    */
-  public void setFilter(Filter.Statement filter) {
-    nativeSetFilter(filter.toArray());
+  public void setFilter(Expression expression) {
+    nativeSetFilter(expression.toArray());
   }
 
   /**
    * Set a single filter.
    *
-   * @param filter the filter to set
+   * @param expression the expression filter to set
    * @return This
    */
-  public LineLayer withFilter(Filter.Statement filter) {
-    setFilter(filter);
+  public LineLayer withFilter(Expression expression) {
+    setFilter(expression);
     return this;
   }
 

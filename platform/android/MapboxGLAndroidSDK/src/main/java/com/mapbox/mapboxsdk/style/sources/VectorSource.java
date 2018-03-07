@@ -6,7 +6,7 @@ import android.support.annotation.Size;
 import android.support.annotation.UiThread;
 
 import com.mapbox.geojson.Feature;
-import com.mapbox.mapboxsdk.style.layers.Filter;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class VectorSource extends Source {
    */
   @NonNull
   public List<Feature> querySourceFeatures(@Size(min = 1) String[] sourceLayerIds,
-                                           @Nullable Filter.Statement filter) {
+                                           @Nullable Expression filter) {
     Feature[] features = querySourceFeatures(
       sourceLayerIds,
       filter != null ? filter.toArray() : null);

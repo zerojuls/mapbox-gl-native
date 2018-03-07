@@ -39,7 +39,7 @@ import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.widgets.MyLocationViewSettings;
-import com.mapbox.mapboxsdk.style.layers.Filter;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.light.Light;
 import com.mapbox.mapboxsdk.style.sources.Source;
@@ -2205,9 +2205,10 @@ public final class MapboxMap {
    */
   @NonNull
   public List<Feature> queryRenderedFeatures(@NonNull PointF coordinates,
-                                             @Nullable Filter.Statement filter,
+                                             @Nullable Expression filter,
                                              @Nullable String... layerIds) {
-    return nativeMapView.queryRenderedFeatures(coordinates, layerIds, filter);
+//    return nativeMapView.queryRenderedFeatures(coordinates, layerIds, filter);
+    return null;
   }
 
   /**
@@ -2233,9 +2234,10 @@ public final class MapboxMap {
    */
   @NonNull
   public List<Feature> queryRenderedFeatures(@NonNull RectF coordinates,
-                                             @Nullable Filter.Statement filter,
+                                             @Nullable Expression filter,
                                              @Nullable String... layerIds) {
-    return nativeMapView.queryRenderedFeatures(coordinates, layerIds, filter);
+//    return nativeMapView.queryRenderedFeatures(coordinates, layerIds, filter);
+    return null;
   }
 
   FocalPointChangeListener createFocalPointChangeListener() {

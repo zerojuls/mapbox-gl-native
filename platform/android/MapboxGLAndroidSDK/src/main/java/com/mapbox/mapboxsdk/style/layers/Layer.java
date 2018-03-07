@@ -70,7 +70,7 @@ public abstract class Layer {
 
   protected native void nativeSetPaintProperty(String name, Object value);
 
-  protected native void nativeSetFilter(Object[] filter);
+  protected native void nativeSetFilter(Object[] expression);
 
   protected native void nativeSetSourceLayer(String sourceLayer);
 

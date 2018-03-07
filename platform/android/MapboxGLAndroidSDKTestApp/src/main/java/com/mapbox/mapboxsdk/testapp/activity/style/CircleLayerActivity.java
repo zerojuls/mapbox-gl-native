@@ -23,7 +23,6 @@ import java.net.URL;
 
 import timber.log.Timber;
 
-import static com.mapbox.mapboxsdk.style.layers.Filter.in;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 
@@ -117,7 +116,8 @@ public class CircleLayerActivity extends AppCompatActivity implements View.OnCli
   }
 
   private void applyBusRouteFilterToBusStopSource() {
-    layer.setFilter(in("number", (Object[]) Data.STOPS_FOR_ROUTE));
+    // TODO filer support
+    //    layer.setFilter(in("number", (Object[]) Data.STOPS_FOR_ROUTE));
   }
 
   private void addBusRouteSource() {
