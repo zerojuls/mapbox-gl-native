@@ -1362,6 +1362,19 @@ public class Expression {
   }
 
   /**
+   * Asserts that the input value is a string.
+   * If multiple values are provided, each one is evaluated in order until a string value is obtained.
+   * If none of the inputs are strings, the expression is an error.
+   *
+   * @param input expression input
+   * @return expression
+   * @see <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-types-string">Style specification</a>
+   */
+  public static Expression string(@NonNull String input) {
+    return string(literal(input));
+  }
+
+  /**
    * Asserts that the input value is a number.
    * If multiple values are provided, each one is evaluated in order until a number value is obtained.
    * If none of the inputs are numbers, the expression is an error.
@@ -1372,6 +1385,19 @@ public class Expression {
    */
   public static Expression number(@NonNull Expression input) {
     return new Expression("number", input);
+  }
+
+  /**
+   * Asserts that the input value is a number.
+   * If multiple values are provided, each one is evaluated in order until a number value is obtained.
+   * If none of the inputs are numbers, the expression is an error.
+   *
+   * @param input expression input
+   * @return expression
+   * @see <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-types-number">Style specification</a>
+   */
+  public static Expression number(@NonNull Number input) {
+    return number(literal(input));
   }
 
   /**
@@ -1388,6 +1414,19 @@ public class Expression {
   }
 
   /**
+   * Asserts that the input value is a boolean.
+   * If multiple values are provided, each one is evaluated in order until a boolean value is obtained.
+   * If none of the inputs are booleans, the expression is an error.
+   *
+   * @param input expression input
+   * @return expression
+   * @see <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-types-boolean">Style specification</a>
+   */
+  public static Expression bool(@NonNull boolean input) {
+    return bool(literal(input));
+  }
+
+  /**
    * Asserts that the input value is an object. If it is not, the expression is an error
    *
    * @param input expression input
@@ -1396,6 +1435,17 @@ public class Expression {
    */
   public static Expression object(@NonNull Expression input) {
     return new Expression("object", input);
+  }
+
+  /**
+   * Asserts that the input value is an object. If it is not, the expression is an error
+   *
+   * @param input expression input
+   * @return expression
+   * @see <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-types-object">Style specification</a>
+   */
+  public static Expression object(@NonNull Object input) {
+    return object(literal(input));
   }
 
   /**
