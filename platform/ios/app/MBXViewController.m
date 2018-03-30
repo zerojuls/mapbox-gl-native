@@ -184,6 +184,8 @@ typedef NS_ENUM(NSInteger, MBXSettingsMiscellaneousRows) {
     {
         self.styleIndex = -1;
         [self cycleStyles:self];
+
+        [self performSegueWithIdentifier:@"CrashSegue" sender:nil];
     }
     else
     {
