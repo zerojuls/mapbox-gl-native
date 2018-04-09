@@ -1103,6 +1103,10 @@ public:
 
         [self.glView display];
     }
+
+//    CFTimeInterval frameTime = _displayLink.targetTimestamp - _displayLink.timestamp;
+//    CGFloat effectiveFrameRate = 1 / frameTime;// * 100 * UIScreen.mainScreen.maximumFramesPerSecond;
+//    NSLog(@"%.5f (~%.2f FPS)", frameTime, effectiveFrameRate);
 }
 
 - (void)setNeedsGLDisplay
@@ -1124,6 +1128,9 @@ public:
     }
 }
 
+#import <sys/utsname.h>
+
+
 - (void)validateDisplayLink
 {
     BOOL isVisible = self.superview && self.window;
@@ -1135,7 +1142,21 @@ public:
         }
 
         _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateFromDisplayLink)];
-        _displayLink.frameInterval = MGLTargetFrameInterval;
+
+        if (@available(iOS 10.0, *))
+        {
+            // Allow the maximum supported FPS for the device, which could be up to 120 FPS.
+            _displayLink.preferredFramesPerSecond = 0;
+        }
+        else
+        {
+            _displayLink.frameInterval = MGLTargetFrameInterval;
+        }
+        struct utsname systemInfo;
+        uname(&systemInfo);
+        NSString *deviceModel = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+        NSLog(@"Maximum FPS for %@: %ld FPS", deviceModel, (long)UIScreen.mainScreen.maximumFramesPerSecond);
+
         [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         _needsDisplayRefresh = YES;
         [self updateFromDisplayLink];

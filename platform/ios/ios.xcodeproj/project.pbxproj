@@ -317,6 +317,7 @@
 		966FCF541F3C323300F2B6DE /* MGLUserLocationHeadingArrowLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 966FCF511F3C321000F2B6DE /* MGLUserLocationHeadingArrowLayer.m */; };
 		966FCF551F3C323500F2B6DE /* MGLUserLocationHeadingArrowLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 966FCF511F3C321000F2B6DE /* MGLUserLocationHeadingArrowLayer.m */; };
 		968F36B51E4D128D003A5522 /* MGLDistanceFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 3557F7AE1E1D27D300CCA5E6 /* MGLDistanceFormatter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		96C3CCF92076971D002588B5 /* MBXAnnotationViewBenchViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 96C3CCF82076971D002588B5 /* MBXAnnotationViewBenchViewController.mm */; };
 		96E027231E57C76E004B8E66 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 96E027251E57C76E004B8E66 /* Localizable.strings */; };
 		96E516DC2000547000A02306 /* MGLPolyline_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 9654C1251FFC1AB900DB6A19 /* MGLPolyline_Private.h */; };
 		96E516DD200054F200A02306 /* MGLPolygon_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 9654C1271FFC1CC000DB6A19 /* MGLPolygon_Private.h */; };
@@ -544,7 +545,6 @@
 		DAAF722E1DA903C700312FA4 /* MGLStyleValue_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = DAAF722A1DA903C700312FA4 /* MGLStyleValue_Private.h */; };
 		DABCABAC1CB80692000A7C39 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DABCABAB1CB80692000A7C39 /* main.m */; };
 		DABCABAF1CB80692000A7C39 /* MBXBenchAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DABCABAE1CB80692000A7C39 /* MBXBenchAppDelegate.m */; };
-		DABCABB21CB80692000A7C39 /* MBXBenchViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = DABCABB11CB80692000A7C39 /* MBXBenchViewController.mm */; };
 		DABCABB71CB80692000A7C39 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DABCABB61CB80692000A7C39 /* Assets.xcassets */; };
 		DABCABBA1CB80692000A7C39 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DABCABB81CB80692000A7C39 /* LaunchScreen.storyboard */; };
 		DABCABC21CB8071D000A7C39 /* locations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DABCABBF1CB80717000A7C39 /* locations.cpp */; };
@@ -978,6 +978,8 @@
 		966FCF501F3C321000F2B6DE /* MGLUserLocationHeadingArrowLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGLUserLocationHeadingArrowLayer.h; sourceTree = "<group>"; };
 		966FCF511F3C321000F2B6DE /* MGLUserLocationHeadingArrowLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGLUserLocationHeadingArrowLayer.m; sourceTree = "<group>"; };
 		968F36B41E4D0FC6003A5522 /* ja */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		96C3CCF72076971D002588B5 /* MBXAnnotationViewBenchViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MBXAnnotationViewBenchViewController.h; sourceTree = "<group>"; };
+		96C3CCF82076971D002588B5 /* MBXAnnotationViewBenchViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MBXAnnotationViewBenchViewController.mm; sourceTree = "<group>"; };
 		96E027241E57C76E004B8E66 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		96E027271E57C77A004B8E66 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		96E027281E57C7DB004B8E66 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -1972,6 +1974,8 @@
 				DABCABAE1CB80692000A7C39 /* MBXBenchAppDelegate.m */,
 				DABCABB01CB80692000A7C39 /* MBXBenchViewController.h */,
 				DABCABB11CB80692000A7C39 /* MBXBenchViewController.mm */,
+				96C3CCF72076971D002588B5 /* MBXAnnotationViewBenchViewController.h */,
+				96C3CCF82076971D002588B5 /* MBXAnnotationViewBenchViewController.mm */,
 				DABCABBF1CB80717000A7C39 /* locations.cpp */,
 				DABCABC01CB80717000A7C39 /* locations.hpp */,
 				DABCABB61CB80692000A7C39 /* Assets.xcassets */,
@@ -2610,6 +2614,7 @@
 					};
 					DA1DC9491CB6C1C2006E619F = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = GJZR2MEM28;
 						LastSwiftMigration = 0820;
 					};
 					DA25D5B81CCD9EDE00607828 = {
@@ -2631,6 +2636,7 @@
 					};
 					DABCABA71CB80692000A7C39 = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = GJZR2MEM28;
 					};
 				};
 			};
@@ -3117,7 +3123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DABCABB21CB80692000A7C39 /* MBXBenchViewController.mm in Sources */,
+				96C3CCF92076971D002588B5 /* MBXAnnotationViewBenchViewController.mm in Sources */,
 				DABCABAF1CB80692000A7C39 /* MBXBenchAppDelegate.m in Sources */,
 				DABCABC21CB8071D000A7C39 /* locations.cpp in Sources */,
 				DABCABAC1CB80692000A7C39 /* main.m in Sources */,
@@ -3556,7 +3562,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = GJZR2MEM28;
 				INFOPLIST_FILE = "$(SRCROOT)/app/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -3570,7 +3576,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = GJZR2MEM28;
 				INFOPLIST_FILE = "$(SRCROOT)/app/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -3823,6 +3829,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = GJZR2MEM28;
 				INFOPLIST_FILE = "$(SRCROOT)/benchmark/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -3835,6 +3842,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = GJZR2MEM28;
 				INFOPLIST_FILE = "$(SRCROOT)/benchmark/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
