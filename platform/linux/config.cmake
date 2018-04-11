@@ -95,6 +95,7 @@ macro(mbgl_platform_core)
     target_add_mason_package(mbgl-core PUBLIC libjpeg-turbo)
     target_add_mason_package(mbgl-core PUBLIC webp)
     target_add_mason_package(mbgl-core PRIVATE icu)
+    target_add_mason_package(mbgl-core PUBLIC geojson)
 
     target_link_libraries(mbgl-core
         PUBLIC -lz
