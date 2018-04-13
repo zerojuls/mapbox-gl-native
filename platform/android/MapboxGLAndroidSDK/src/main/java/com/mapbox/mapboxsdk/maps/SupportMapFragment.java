@@ -14,6 +14,8 @@ import com.mapbox.mapboxsdk.utils.MapFragmentUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Support Fragment wrapper around a map view.
  * <p>
@@ -136,6 +138,7 @@ public class SupportMapFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onStop() {
     super.onStop();
+    Timber.e("OnStop");
     map.onStop();
   }
 
@@ -154,6 +157,7 @@ public class SupportMapFragment extends Fragment implements OnMapReadyCallback {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
+    Timber.e("OnDestroyView");
     map.onDestroy();
     mapReadyCallbackList.clear();
   }
