@@ -68,4 +68,5 @@
     <string name="description_hillshade">Example raster-dem source and hillshade layer</string>
     <string name="description_heatmaplayer">Use HeatmapLayer to visualise earthquakes</string>
     <string name="description_gesture_detector">Manipulate gestures detector\'s settings</string>
+    <string name="description_view_wrapper">Use a wrapping view to encapsulate a MapView</string>
 </resources>
