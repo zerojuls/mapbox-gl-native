@@ -7,6 +7,8 @@
 #include <mbgl/util/type_list.hpp>
 #include <mbgl/renderer/possibly_evaluated_property_value.hpp>
 #include <mbgl/renderer/paint_property_statistics.hpp>
+#include <mbgl/renderer/cross_faded_property_evaluator.hpp>
+#include <mbgl/util/variant.hpp>
 
 #include <bitset>
 
@@ -72,7 +74,7 @@ std::array<float, N*2> zoomInterpolatedAttributeValue(const std::array<float, N>
    Note that the shader source varies depending on whether we're using a uniform or
    attribute. Like GL JS, we dynamically compile shaders at runtime to accomodate this.
 */
-template <class T, class... As>
+template <class T, class PossiblyEvaluatedType, class... As>
 class PaintPropertyBinder {
 public:
 
@@ -80,17 +82,17 @@ public:
 
     virtual void populateVertexVector(const GeometryTileFeature& feature, std::size_t length) = 0;
     virtual void upload(gl::Context& context) = 0;
-    virtual optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<T>& currentValue) const = 0;
+    virtual optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedType& currentValue) const = 0;
     virtual float interpolationFactor(float currentZoom) const = 0;
-    virtual T uniformValue(const PossiblyEvaluatedPropertyValue<T>& currentValue) const = 0;
+    virtual T uniformValue(const PossiblyEvaluatedType& currentValue) const = 0;
 
-    static std::unique_ptr<PaintPropertyBinder> create(const PossiblyEvaluatedPropertyValue<T>& value, float zoom, T defaultValue);
+    static std::unique_ptr<PaintPropertyBinder> create(const PossiblyEvaluatedType& value, float zoom, T defaultValue);
 
     PaintPropertyStatistics<T> statistics;
 };
 
 template <class T, class A>
-class ConstantPaintPropertyBinder : public PaintPropertyBinder<T, A> {
+class ConstantPaintPropertyBinder : public PaintPropertyBinder<T, PossiblyEvaluatedPropertyValue<T>, A> {
 public:
     ConstantPaintPropertyBinder(T constant_)
         : constant(std::move(constant_)) {
@@ -115,8 +117,36 @@ private:
     T constant;
 };
 
+template <class T, class... As>
+class ConstantCrossFadedPaintPropertyBinder : public PaintPropertyBinder<T, PossiblyEvaluatedPropertyValue<Faded<T>>, As...> {
+public:
+    ConstantCrossFadedPaintPropertyBinder(T constant_)
+        : constant(std::move(constant_)) {
+    }
+
+    void populateVertexVector(const GeometryTileFeature&, std::size_t) override {}
+    void upload(gl::Context&) override {}
+
+    optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
+        return {};
+    }
+
+    float interpolationFactor(float) const override {
+        return 0.0f;
+    }
+
+    T uniformValue(const PossiblyEvaluatedPropertyValue<Faded<T>>& currentValue) const override {
+        // uniform bindings may have to happen elsewhere because there are several uniforms for one cross-faded property
+        const auto faded = currentValue.constantOr(Faded<T> {constant, constant, 2.0f, 1.0f, 1.0f});
+        return faded.from;
+    }
+
+private:
+    T constant;
+};
+
 template <class T, class A>
-class SourceFunctionPaintPropertyBinder : public PaintPropertyBinder<T, A> {
+class SourceFunctionPaintPropertyBinder : public PaintPropertyBinder<T, PossiblyEvaluatedPropertyValue<T>, A> {
 public:
     using BaseAttribute = A;
     using BaseAttributeValue = typename BaseAttribute::Value;
@@ -171,7 +201,7 @@ private:
 };
 
 template <class T, class A>
-class CompositeFunctionPaintPropertyBinder : public PaintPropertyBinder<T, A> {
+class CompositeFunctionPaintPropertyBinder : public PaintPropertyBinder<T, PossiblyEvaluatedPropertyValue<T>, A> {
 public:
 
     using AttributeType = ZoomInterpolatedAttributeType<A>;
@@ -233,21 +263,117 @@ private:
     optional<gl::VertexBuffer<Vertex>> vertexBuffer;
 };
 
-template <class T, class... As>
-std::unique_ptr<PaintPropertyBinder<T, As...>>
-PaintPropertyBinder<T, As...>::create(const PossiblyEvaluatedPropertyValue<T>& value, float zoom, T defaultValue) {
-    return value.match(
-        [&] (const T& constant) -> std::unique_ptr<PaintPropertyBinder<T, As...>> {
-            return std::make_unique<ConstantPaintPropertyBinder<T, As...>>(constant);
-        },
-        [&] (const style::SourceFunction<T>& function) {
-            return std::make_unique<SourceFunctionPaintPropertyBinder<T, As...>>(function, defaultValue);
-        },
-        [&] (const style::CompositeFunction<T>& function) {
-            return std::make_unique<CompositeFunctionPaintPropertyBinder<T, As...>>(function, zoom, defaultValue);
+template <class T, class A1, class A2>
+class CompositeCrossFadedPaintPropertyBinder : public PaintPropertyBinder<T, PossiblyEvaluatedPropertyValue<Faded<T>>, A1, A2> {
+public:
+
+    using AttributeType = ZoomInterpolatedAttributeType<A1>;
+    using AttributeValue = typename AttributeType::Value;
+    using Vertex = gl::detail::Vertex<AttributeType>;
+
+    CompositeCrossFadedPaintPropertyBinder(variant<style::CompositeFunction<T>, style::SourceFunction<T>> function_, float zoom, T defaultValue_)
+        : function(std::move(function_)),
+          defaultValue(std::move(defaultValue_)),
+          zoomRange({zoom, zoom + 1}) {
+    }
+
+    void populateVertexVector(const GeometryTileFeature& feature, std::size_t length) override {
+        std::array<T, 3> range = function.match(
+            [&] (const style::SourceFunction<T>& _function) -> std::array<T, 3> {
+                return {{_function.evaluate(feature, defaultValue), _function.evaluate(feature, defaultValue), _function.evaluate(feature, defaultValue)}};
+            },
+            [&] (const style::CompositeFunction<T>& _function) -> std::array<T, 3> {
+                return {{_function.evaluate(zoomRange.min, feature, defaultValue), _function.evaluate(zoomRange.min, feature, defaultValue), _function.evaluate(zoomRange.min, feature, defaultValue)}};
+            }
+        );
+
+        this->statistics.add(range[0]);
+        this->statistics.add(range[1]);
+        AttributeValue value = range[0];
+        for (std::size_t i = zoomInVertexVector.vertexSize(); i < length; ++i) {
+            zoomInVertexVector.emplace_back(Vertex { value });
         }
-    );
+    }
+
+    void upload(gl::Context& context) override {
+        zoomInVertexBuffer = context.createVertexBuffer(std::move(zoomInVertexVector));
+    }
+
+    optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>& currentValue) const override {
+        if (currentValue.isConstant()) {
+            return {};
+        } else {
+            return AttributeType::binding(*zoomInVertexBuffer, 0);
+        }
+    }
+
+    float interpolationFactor(float) const override {
+        return 0.0f;
+    }
+
+    T uniformValue(const PossiblyEvaluatedPropertyValue<Faded<T>>& currentValue) const override {
+        if (currentValue.isConstant()) {
+            const auto constant = *currentValue.constant();
+            return constant.from;
+        } else {
+            // Uniform values for vertex attribute arrays are unused.
+            return {};
+        }
+    }
+
+private:
+    variant<style::CompositeFunction<T>, style::SourceFunction<T>> function;
+    T defaultValue;
+    Range<float> zoomRange;
+    gl::VertexVector<Vertex> zoomInVertexVector;
+    gl::VertexVector<Vertex> zoomOutVertexVector;
+    optional<gl::VertexBuffer<Vertex>> zoomInVertexBuffer;
+    optional<gl::VertexBuffer<Vertex>> zoomOutVertexBuffer;
+};
+
+template <class T, class PossiblyEvaluatedType>
+struct CreateBinder {
+    template <class A>
+    static std::unique_ptr<PaintPropertyBinder<T, PossiblyEvaluatedType, A>> create(const PossiblyEvaluatedType& value, float zoom, T defaultValue) {
+        return value.match(
+            [&] (const T& constant) -> std::unique_ptr<PaintPropertyBinder<T, PossiblyEvaluatedType, A>> {
+                return std::make_unique<ConstantPaintPropertyBinder<T, A>>(constant);
+            },
+            [&] (const style::SourceFunction<T>& function) {
+                return std::make_unique<SourceFunctionPaintPropertyBinder<T, A>>(function, defaultValue);
+            },
+            [&] (const style::CompositeFunction<T>& function) {
+                return std::make_unique<CompositeFunctionPaintPropertyBinder<T, A>>(function, zoom, defaultValue);
+            }
+        );
+    }
+};
+
+template <class T>
+    struct CreateBinder<T, PossiblyEvaluatedPropertyValue<Faded<T>>> {
+    template <class... As>
+    static std::unique_ptr<PaintPropertyBinder<T, PossiblyEvaluatedPropertyValue<Faded<T>>, As...>> create(const PossiblyEvaluatedPropertyValue<Faded<T>>& value, float zoom, T defaultValue) {
+        return value.match(
+            [&] (const T& constant) -> std::unique_ptr<PaintPropertyBinder<T, PossiblyEvaluatedPropertyValue<Faded<T>>, As...>> {
+                return std::make_unique<ConstantCrossFadedPaintPropertyBinder<T, As...>>(constant);
+            },
+            [&] (const style::SourceFunction<T>& function) {
+                return std::make_unique<CompositeCrossFadedPaintPropertyBinder<T, As...>>(function, zoom, defaultValue);
+            },
+            [&] (const style::CompositeFunction<T>& function) {
+                return std::make_unique<CompositeCrossFadedPaintPropertyBinder<T, As...>>(function, zoom, defaultValue);
+            }
+        );
+    }
+};
+
+template <class T, class PossiblyEvaluatedType, class... As>
+std::unique_ptr<PaintPropertyBinder<T, PossiblyEvaluatedType, As... >>
+PaintPropertyBinder<T, PossiblyEvaluatedType, As...>::create(const PossiblyEvaluatedType& value, float zoom, T defaultValue) {
+    return CreateBinder<T, PossiblyEvaluatedType>::template create<As...>(value, zoom, defaultValue);
 }
+
+
 
 template <class Attr>
 struct ZoomInterpolatedAttribute {
@@ -269,17 +395,17 @@ class PaintPropertyBinders;
 template <class... Ps>
 class PaintPropertyBinders<TypeList<Ps...>> {
 private:
-    template <class T, class... As>
+    template <class T, class PossiblyEvaluatedType, class... As>
     struct Detail;
 
-    template <class T, class... As>
-    struct Detail<T, TypeList<As...>> {
-        using Binder = PaintPropertyBinder<T, typename As::Type...>;
+    template <class T, class PossiblyEvaluatedType, class... As>
+    struct Detail<T, PossiblyEvaluatedType, TypeList<As...>> {
+        using Binder = PaintPropertyBinder<T, PossiblyEvaluatedType, typename As::Type...>;
         using ZoomInterpolatedAttributeList = TypeList<ZoomInterpolatedAttribute<As>...>;
     };
 
     template <class P>
-    using Property = Detail<typename P::Type, typename P::Attributes>;
+    using Property = Detail<typename P::Type, typename P::PossiblyEvaluatedType, typename P::Attributes>;
 
 public:
     template <class P>

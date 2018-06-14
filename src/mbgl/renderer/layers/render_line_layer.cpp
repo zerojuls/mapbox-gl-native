@@ -93,6 +93,8 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
                 getID()
             );
         };
+        const auto linepattern = evaluated.get<LinePattern>();
+        const auto linePatternValue = linepattern.constantOr(mbgl::Faded<std::basic_string<char> >{ "hospital-11", "hospital-11", 2.0f, 1.0f, 0.5f});
 
         if (!evaluated.get<LineDasharray>().from.empty()) {
             const LinePatternCap cap = bucket.layout.get<LineCap>() == LineCapType::Round
@@ -113,9 +115,9 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
                      posB,
                      parameters.lineAtlas.getSize().width));
 
-        } else if (!evaluated.get<LinePattern>().from.empty()) {
-            optional<ImagePosition> posA = parameters.imageManager.getPattern(evaluated.get<LinePattern>().from);
-            optional<ImagePosition> posB = parameters.imageManager.getPattern(evaluated.get<LinePattern>().to);
+        } else if (!linePatternValue.from.empty()) {
+            optional<ImagePosition> posA = parameters.imageManager.getPattern(linePatternValue.from);
+            optional<ImagePosition> posB = parameters.imageManager.getPattern(linePatternValue.to);
 
             if (!posA || !posB)
                 return;
