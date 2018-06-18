@@ -2,6 +2,7 @@
 
 #include <mbgl/style/function/source_function.hpp>
 #include <mbgl/style/function/composite_function.hpp>
+#include <mbgl/renderer/cross_faded_property_evaluator.hpp>
 #include <mbgl/util/interpolate.hpp>
 #include <mbgl/util/variant.hpp>
 
@@ -61,6 +62,61 @@ public:
 
     bool useIntegerZoom;
 };
+
+template <class T>
+class PossiblyEvaluatedPropertyValue<Faded<T>> {
+private:
+    using Value = variant<
+        Faded<T>,
+        style::SourceFunction<T>,
+        style::CompositeFunction<T>>;
+
+    Value value;
+
+public:
+    PossiblyEvaluatedPropertyValue() = default;
+    PossiblyEvaluatedPropertyValue(Value v, bool useIntegerZoom_ = false)
+        : value(std::move(v)),
+          useIntegerZoom(useIntegerZoom_) {}
+
+    bool isConstant() const {
+        return value.template is<Faded<T>>();
+    }
+
+    optional<Faded<T>> constant() const {
+        return value.match(
+            [&] (const Faded<T>& t) { return optional<Faded<T>>(t); },
+            [&] (const auto&) { return optional<Faded<T>>(); });
+    }
+
+    Faded<T> constantOr(const Faded<T>& t) const {
+        return constant().value_or(t);
+    }
+
+    template <class... Ts>
+    auto match(Ts&&... ts) const {
+        return value.match(std::forward<Ts>(ts)...);
+    }
+
+    template <class Feature>
+    Faded<T> evaluate(const Feature& feature, float zoom, T defaultValue) const {
+        return this->match(
+            [&] (const Faded<T>& constant_) { return constant_; },
+            [&] (const style::SourceFunction<T>& function) {
+                const T evaluated = function.evaluate(feature, defaultValue);
+                return Faded<T> {evaluated, evaluated, 0.0f, 0.0f, 0.0f};
+            },
+            [&] (const style::CompositeFunction<T>& function) {
+                const T min = function.evaluate(floor(zoom), feature, defaultValue);
+                const T max = function.evaluate(floor(zoom) + 1, feature, defaultValue);
+                return Faded<T> {min, max,  0.0f, 0.0f, 0.0f};
+            }
+        );
+    }
+
+    bool useIntegerZoom;
+};
+
 
 namespace util {
 

@@ -79,6 +79,11 @@ void bindUniform<std::array<uint16_t, 2>>(UniformLocation location, const std::a
     bindUniform(location, util::convert<float>(t));
 }
 
+template <>
+void bindUniform<std::array<uint16_t, 4>>(UniformLocation location, const std::array<uint16_t, 4>& t) {
+    bindUniform(location, util::convert<float>(t));
+}
+
 // Add more as needed.
 
 #ifndef NDEBUG
@@ -165,6 +170,14 @@ bool verifyUniform<std::array<uint16_t, 2>>(const ActiveUniform& uniform) {
     assert(uniform.size == 1 &&
            (uniform.type == UniformDataType::IntVec2 ||
             uniform.type == UniformDataType::FloatVec2));
+    return true;
+}
+
+template <>
+bool verifyUniform<std::array<uint16_t, 4>>(const ActiveUniform& uniform) {
+    assert(uniform.size == 1 &&
+           (uniform.type == UniformDataType::IntVec4 ||
+            uniform.type == UniformDataType::FloatVec4));
     return true;
 }
 

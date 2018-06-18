@@ -45,11 +45,11 @@ private:
 };
 
 template <typename T>
-class CrossFadedDataDrivenPropertyEvaluator : public DataDrivenPropertyEvaluator<Faded<T>> {
+class DataDrivenPropertyEvaluator<Faded<T>> {
 public:
     using ResultType = PossiblyEvaluatedPropertyValue<Faded<T>>;
 
-    CrossFadedDataDrivenPropertyEvaluator(const PropertyEvaluationParameters& parameters_, T defaultValue_)
+    DataDrivenPropertyEvaluator(const PropertyEvaluationParameters& parameters_, T defaultValue_)
     : parameters(parameters_),
       defaultValue(std::move(defaultValue_)) {}
 
@@ -57,16 +57,18 @@ public:
         return ResultType(calculate(constant, constant, constant));
     }
 
+    ResultType operator()(const style::Undefined& ) const {
+        return ResultType(calculate(defaultValue, defaultValue, defaultValue));
+    }
+
     ResultType operator()(const style::CameraFunction<T>& function) const {
         const T evaluated = parameters.useIntegerZoom ? function.evaluate(floor(parameters.z)) : function.evaluate(parameters.z);
-            return ResultType(calculate(evaluated, evaluated, evaluated));
+        return ResultType(calculate(evaluated, evaluated, evaluated));
     }
 
     template <class Function>
     ResultType operator()(const Function& function) const {
-        auto returnFunction = function;
-        returnFunction.useIntegerZoom = parameters.useIntegerZoom;
-        return ResultType(returnFunction);
+        return ResultType(function);
     }
 
 

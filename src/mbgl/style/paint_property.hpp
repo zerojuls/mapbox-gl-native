@@ -44,7 +44,7 @@ class CrossFadedDataDrivenPaintProperty {
 public:
     using TransitionableType = Transitionable<DataDrivenPropertyValue<T>>;
     using UnevaluatedType = Transitioning<DataDrivenPropertyValue<T>>;
-    using EvaluatorType = CrossFadedDataDrivenPropertyEvaluator<Faded<T>>;
+    using EvaluatorType = DataDrivenPropertyEvaluator<Faded<T>>;
     using PossiblyEvaluatedType = PossiblyEvaluatedPropertyValue<Faded<T>>;
     using Type = T;
     static constexpr bool IsDataDriven = true;
