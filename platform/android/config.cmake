@@ -120,6 +120,7 @@ macro(mbgl_filesource)
     target_add_mason_package(mbgl-filesource PUBLIC jni.hpp)
 
     target_link_libraries(mbgl-filesource
+        PRIVATE codecvt
         PUBLIC -llog
         PUBLIC -landroid
         PUBLIC -lstdc++
@@ -307,6 +308,7 @@ add_library(mbgl-android STATIC
 )
 
 target_link_libraries(mbgl-android
+    PUBLIC codecvt
     PUBLIC mbgl-filesource
     PUBLIC mbgl-core
 )
