@@ -83,7 +83,7 @@ public:
 
     virtual void populateVertexVector(const GeometryTileFeature& feature, std::size_t length) = 0;
     virtual void upload(gl::Context& context) = 0;
-    virtual optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedType& currentValue) const = 0;
+    virtual std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> attributeBinding(const PossiblyEvaluatedType& currentValue) const = 0;
     virtual float interpolationFactor(float currentZoom) const = 0;
     virtual UniformValueType uniformValue(const PossiblyEvaluatedType& currentValue) const = 0;
 
@@ -102,7 +102,7 @@ public:
     void populateVertexVector(const GeometryTileFeature&, std::size_t) override {}
     void upload(gl::Context&) override {}
 
-    optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<T>&) const override {
+    std::tuple<optional<gl::AttributeBinding>> attributeBinding(const PossiblyEvaluatedPropertyValue<T>&) const override {
         return {};
     }
 
@@ -128,7 +128,7 @@ public:
     void populateVertexVector(const GeometryTileFeature&, std::size_t) override {}
     void upload(gl::Context&) override {}
 
-    optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
+    std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
         return {};
     }
 
@@ -136,9 +136,12 @@ public:
         return 0.0f;
     }
 
-    std::array<uint16_t, 4> uniformValue(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
+    std::array<uint16_t, 4> uniformValue(const PossiblyEvaluatedPropertyValue<Faded<T>>& currentValue) const override {
         // uniform bindings may have to happen elsewhere because there are several uniforms for one cross-faded property
-        // const auto faded = currentValue.constantOr(constant);
+        const auto faded = currentValue.constantOr(constant);
+        if (faded.fromScale > 0.0f) {
+            return {};
+        }
         return {};
     }
 
@@ -173,11 +176,11 @@ public:
         vertexBuffer = context.createVertexBuffer(std::move(vertexVector));
     }
 
-    optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<T>& currentValue) const override {
+    std::tuple<optional<gl::AttributeBinding>> attributeBinding(const PossiblyEvaluatedPropertyValue<T>& currentValue) const override {
         if (currentValue.isConstant()) {
             return {};
         } else {
-            return AttributeType::binding(*vertexBuffer, 0, BaseAttribute::Dimensions);
+            return {AttributeType::binding(*vertexBuffer, 0, BaseAttribute::Dimensions)};
         }
     }
 
@@ -231,7 +234,7 @@ public:
         vertexBuffer = context.createVertexBuffer(std::move(vertexVector));
     }
 
-    optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<T>& currentValue) const override {
+    std::tuple<optional<gl::AttributeBinding>> attributeBinding(const PossiblyEvaluatedPropertyValue<T>& currentValue) const override {
         if (currentValue.isConstant()) {
             return {};
         } else {
@@ -269,8 +272,12 @@ class CompositeCrossFadedPaintPropertyBinder : public PaintPropertyBinder<T, std
 public:
     // to fix -- we will want to use both attributes
     using AttributeType = ZoomInterpolatedAttributeType<A1>;
+    using AttributeType2 = ZoomInterpolatedAttributeType<A2>;
+
     using AttributeValue = typename AttributeType::Value;
+    using AttributeValue2 = typename AttributeType2::Value;
     using Vertex = gl::detail::Vertex<AttributeType>;
+    using Vertex2 = gl::detail::Vertex<AttributeType2>;
 
     CompositeCrossFadedPaintPropertyBinder(variant<style::CompositeFunction<T>, style::SourceFunction<T>> function_, float zoom, T defaultValue_)
         : function(std::move(function_)),
@@ -294,18 +301,20 @@ public:
         AttributeValue value = { {0, 0, 0, 0} };
         for (std::size_t i = zoomInVertexVector.vertexSize(); i < length; ++i) {
             zoomInVertexVector.emplace_back(Vertex { value });
+            zoomOutVertexVector.emplace_back(Vertex { value });
         }
     }
 
     void upload(gl::Context& context) override {
         zoomInVertexBuffer = context.createVertexBuffer(std::move(zoomInVertexVector));
+        zoomOutVertexBuffer = context.createVertexBuffer(std::move(zoomOutVertexVector));
     }
 
-    optional<gl::AttributeBinding> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>& currentValue) const override {
+    std::tuple<optional<gl::AttributeBinding>, optional<gl::AttributeBinding>> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>& currentValue) const override {
         if (currentValue.isConstant()) {
             return {};
         } else {
-            return AttributeType::binding(*zoomInVertexBuffer, 0);
+            return {AttributeType::binding(*zoomInVertexBuffer, 0), AttributeType2::binding(*zoomOutVertexBuffer, 0)};
         }
     }
 
@@ -441,9 +450,8 @@ public:
 
     template <class EvaluatedProperties>
     AttributeBindings attributeBindings(const EvaluatedProperties& currentProperties) const {
-        return AttributeBindings {
-            binders.template get<Ps>()->attributeBinding(currentProperties.template get<Ps>())...
-        };
+        return AttributeBindings { std::tuple_cat(
+           binders.template get<Ps>()->attributeBinding(currentProperties.template get<Ps>())...) };
     }
 
     using Uniforms = gl::Uniforms<InterpolationUniform<typename Ps::Attribute>..., typename Ps::Uniform...>;
@@ -466,7 +474,6 @@ public:
     const auto& statistics() const {
         return binders.template get<P>()->statistics;
     }
-
 
     using Bitset = std::bitset<sizeof...(Ps)>;
 

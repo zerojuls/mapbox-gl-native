@@ -40,6 +40,9 @@ public:
         return get_polyfill<TypeIndex<I, Is...>::value>(*this);
     }
 
+    template <class... Us>
+    IndexedTuple(Us&&... other) : tuple_polyfill<Ts...>(std::forward<Us>(other)...) {}
+
     template <class... Js, class... Us>
     IndexedTuple<TypeList<Is..., Js...>, TypeList<Ts..., Us...>>
     concat(const IndexedTuple<TypeList<Js...>, TypeList<Us...>>& other) const {
