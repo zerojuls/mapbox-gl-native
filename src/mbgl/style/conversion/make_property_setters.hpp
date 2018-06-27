@@ -113,7 +113,7 @@ inline auto makePaintPropertySetters() {
     result["line-blur-transition"] = &setTransition<LineLayer, &LineLayer::setLineBlurTransition>;
     result["line-dasharray"] = &setProperty<LineLayer, PropertyValue<std::vector<float>>, &LineLayer::setLineDasharray>;
     result["line-dasharray-transition"] = &setTransition<LineLayer, &LineLayer::setLineDasharrayTransition>;
-    result["line-pattern"] = &setProperty<LineLayer, PropertyValue<std::string>, &LineLayer::setLinePattern>;
+    result["line-pattern"] = &setProperty<LineLayer, DataDrivenPropertyValue<std::string>, &LineLayer::setLinePattern>;
     result["line-pattern-transition"] = &setTransition<LineLayer, &LineLayer::setLinePatternTransition>;
 
     result["icon-opacity"] = &setProperty<SymbolLayer, DataDrivenPropertyValue<float>, &SymbolLayer::setIconOpacity>;
@@ -206,8 +206,6 @@ inline auto makePaintPropertySetters() {
     result["raster-saturation-transition"] = &setTransition<RasterLayer, &RasterLayer::setRasterSaturationTransition>;
     result["raster-contrast"] = &setProperty<RasterLayer, PropertyValue<float>, &RasterLayer::setRasterContrast>;
     result["raster-contrast-transition"] = &setTransition<RasterLayer, &RasterLayer::setRasterContrastTransition>;
-    result["raster-resampling"] = &setProperty<RasterLayer, PropertyValue<RasterResamplingType>, &RasterLayer::setRasterResampling>;
-    result["raster-resampling-transition"] = &setTransition<RasterLayer, &RasterLayer::setRasterResamplingTransition>;
     result["raster-fade-duration"] = &setProperty<RasterLayer, PropertyValue<float>, &RasterLayer::setRasterFadeDuration>;
     result["raster-fade-duration-transition"] = &setTransition<RasterLayer, &RasterLayer::setRasterFadeDurationTransition>;
 
