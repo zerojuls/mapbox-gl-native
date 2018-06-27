@@ -93,6 +93,18 @@ public:
         return constant().value_or(t);
     }
 
+    std::vector<optional<T>> possibleOutputs() const {
+        return this->match(
+            [&] (const Faded<T>& constant_) { return std::vector<optional<T>>{ optional<T>(constant_.to), optional<T>(constant_.from) }; },
+            [&] (const style::SourceFunction<T>& function) {
+                return function.possibleOutputs();
+            },
+            [&] (const style::CompositeFunction<T>& function) {
+                return function.possibleOutputs();
+            }
+        );
+    }
+
     template <class... Ts>
     auto match(Ts&&... ts) const {
         return value.match(std::forward<Ts>(ts)...);

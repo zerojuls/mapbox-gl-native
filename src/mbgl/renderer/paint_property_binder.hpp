@@ -9,6 +9,7 @@
 #include <mbgl/renderer/paint_property_statistics.hpp>
 #include <mbgl/renderer/cross_faded_property_evaluator.hpp>
 #include <mbgl/util/variant.hpp>
+#include <mbgl/renderer/image_atlas.hpp>
 
 #include <bitset>
 
@@ -81,7 +82,7 @@ public:
 
     virtual ~PaintPropertyBinder() = default;
 
-    virtual void populateVertexVector(const GeometryTileFeature& feature, std::size_t length) = 0;
+    virtual void populateVertexVector(const GeometryTileFeature& feature, std::size_t length, const ImagePositions&) = 0;
     virtual void upload(gl::Context& context) = 0;
     virtual std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> attributeBinding(const PossiblyEvaluatedType& currentValue) const = 0;
     virtual float interpolationFactor(float currentZoom) const = 0;
@@ -99,7 +100,7 @@ public:
         : constant(std::move(constant_)) {
     }
 
-    void populateVertexVector(const GeometryTileFeature&, std::size_t) override {}
+    void populateVertexVector(const GeometryTileFeature&, std::size_t, const ImagePositions&) override {}
     void upload(gl::Context&) override {}
 
     std::tuple<optional<gl::AttributeBinding>> attributeBinding(const PossiblyEvaluatedPropertyValue<T>&) const override {
@@ -125,7 +126,7 @@ public:
         : constant(std::move(constant_)) {
     }
 
-    void populateVertexVector(const GeometryTileFeature&, std::size_t) override {}
+    void populateVertexVector(const GeometryTileFeature&, std::size_t, const ImagePositions&) override {}
     void upload(gl::Context&) override {}
 
     std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
@@ -163,7 +164,7 @@ public:
           defaultValue(std::move(defaultValue_)) {
     }
 
-    void populateVertexVector(const GeometryTileFeature& feature, std::size_t length) override {
+    void populateVertexVector(const GeometryTileFeature& feature, std::size_t length, const ImagePositions&) override {
         auto evaluated = function.evaluate(feature, defaultValue);
         this->statistics.add(evaluated);
         auto value = attributeValue(evaluated);
@@ -218,7 +219,7 @@ public:
           zoomRange({zoom, zoom + 1}) {
     }
 
-    void populateVertexVector(const GeometryTileFeature& feature, std::size_t length) override {
+    void populateVertexVector(const GeometryTileFeature& feature, std::size_t length, const ImagePositions&) override {
         Range<T> range = function.evaluate(zoomRange, feature, defaultValue);
         this->statistics.add(range.min);
         this->statistics.add(range.max);
@@ -285,7 +286,7 @@ public:
           zoomRange({zoom, zoom + 1}) {
     }
 
-    void populateVertexVector(const GeometryTileFeature& feature, std::size_t length) override {
+    void populateVertexVector(const GeometryTileFeature& feature, std::size_t length, const ImagePositions&) override {
         std::array<T, 3> range = function.match(
             [&] (const style::SourceFunction<T>& _function) -> std::array<T, 3> {
                 return {{_function.evaluate(feature, defaultValue), _function.evaluate(feature, defaultValue), _function.evaluate(feature, defaultValue)}};
@@ -430,9 +431,9 @@ public:
     PaintPropertyBinders(PaintPropertyBinders&&) = default;
     PaintPropertyBinders(const PaintPropertyBinders&) = delete;
 
-    void populateVertexVectors(const GeometryTileFeature& feature, std::size_t length) {
+    void populateVertexVectors(const GeometryTileFeature& feature, std::size_t length, const ImagePositions& patternPositions) {
         util::ignore({
-            (binders.template get<Ps>()->populateVertexVector(feature, length), 0)...
+            (binders.template get<Ps>()->populateVertexVector(feature, length, patternPositions), 0)...
         });
     }
 

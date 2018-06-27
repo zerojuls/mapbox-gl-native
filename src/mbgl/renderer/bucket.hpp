@@ -2,7 +2,7 @@
 
 #include <mbgl/util/noncopyable.hpp>
 #include <mbgl/tile/geometry_tile_data.hpp>
-
+#include <mbgl/style/image_impl.hpp>
 #include <atomic>
 
 namespace mbgl {
@@ -23,6 +23,8 @@ public:
     // pass-by-const-ref the geometries as a second parameter.
     virtual void addFeature(const GeometryTileFeature&,
                             const GeometryCollection&) {};
+
+    virtual void addPatternDependencies(const std::vector<const RenderLayer*>&, ImageDependencies&) {};
 
     // As long as this bucket has a Prepare render pass, this function is getting called. Typically,
     // this only happens once when the bucket is being rendered for the first time.

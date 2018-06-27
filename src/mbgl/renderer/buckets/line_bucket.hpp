@@ -7,6 +7,7 @@
 #include <mbgl/programs/segment.hpp>
 #include <mbgl/programs/line_program.hpp>
 #include <mbgl/style/layers/line_layer_properties.hpp>
+#include <mbgl/style/image_impl.hpp>
 
 #include <vector>
 
@@ -21,8 +22,13 @@ public:
                const std::vector<const RenderLayer*>&,
                const style::LineLayoutProperties::Unevaluated&);
 
+    void addPatternDependencies(const std::vector<const RenderLayer*>& layers, ImageDependencies& patternDependencies) override;
+
     void addFeature(const GeometryTileFeature&,
                     const GeometryCollection&) override;
+
+    void populateFeatureBuffers(const ImagePositions& patternPositions);
+
     bool hasData() const override;
 
     void upload(gl::Context&) override;
@@ -57,6 +63,8 @@ private:
     std::ptrdiff_t e1;
     std::ptrdiff_t e2;
     std::ptrdiff_t e3;
+
+    std::vector<std::pair<const GeometryTileFeature&, const GeometryCollection&>> features;
 
     const uint32_t overscaling;
     const float zoom;

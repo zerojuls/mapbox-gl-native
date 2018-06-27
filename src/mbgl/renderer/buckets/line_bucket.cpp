@@ -27,15 +27,40 @@ LineBucket::LineBucket(const BucketParameters& parameters,
     }
 }
 
+void LineBucket::addPatternDependencies(const std::vector<const RenderLayer*>& layers, ImageDependencies& patternDependencies) {
+    for (const auto& layer : layers) {
+        const auto evaluatedProps = layer->as<RenderLineLayer>()->evaluated;
+        const auto patterns = evaluatedProps.get<LinePattern>().possibleOutputs();
+
+        for (auto& pattern : patterns) {
+            const auto patternString = pattern.value_or("");
+            if (!patternString.empty()) {
+                patternDependencies.emplace(patternString, ImageType::Pattern);
+            }
+        }
+    }
+}
+
 void LineBucket::addFeature(const GeometryTileFeature& feature,
                             const GeometryCollection& geometryCollection) {
-    for (auto& line : geometryCollection) {
-        addGeometry(line, feature);
-    }
 
-    for (auto& pair : paintPropertyBinders) {
-        pair.second.populateVertexVectors(feature, vertices.vertexSize());
+    features.push_back(std::pair<const GeometryTileFeature&, const GeometryCollection&>(feature, geometryCollection));
+}
+
+void LineBucket::populateFeatureBuffers(const mbgl::ImagePositions &patternPositions) {
+    for (auto& featurePair : features) {
+        const GeometryTileFeature& feature = featurePair.first;
+        const GeometryCollection& geometryCollection = featurePair.second;
+
+        for (auto& line : geometryCollection) {
+            addGeometry(line, feature);
+        }
+
+        for (auto& pair : paintPropertyBinders) {
+            pair.second.populateVertexVectors(feature, vertices.vertexSize(), patternPositions);
+        }
     }
+    // we no longer need the features vector - release the memory or something?
 }
 
 /*

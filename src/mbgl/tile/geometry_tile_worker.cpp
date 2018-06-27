@@ -7,6 +7,7 @@
 #include <mbgl/style/filter.hpp>
 #include <mbgl/style/layers/symbol_layer_impl.hpp>
 #include <mbgl/renderer/layers/render_symbol_layer.hpp>
+#include <mbgl/renderer/layers/render_line_layer.hpp>
 #include <mbgl/renderer/buckets/symbol_bucket.hpp>
 #include <mbgl/util/logging.hpp>
 #include <mbgl/util/constants.hpp>
@@ -267,11 +268,12 @@ void GeometryTileWorker::onGlyphsAvailable(GlyphMap newGlyphMap) {
     symbolDependenciesChanged();
 }
 
-void GeometryTileWorker::onImagesAvailable(ImageMap newImageMap, uint64_t imageCorrelationID_) {
+void GeometryTileWorker::onImagesAvailable(ImageMap newIconMap, ImageMap newPatternMap, uint64_t imageCorrelationID_) {
     if (imageCorrelationID != imageCorrelationID_) {
         return; // Ignore outdated image request replies.
     }
-    imageMap = std::move(newImageMap);
+    imageMap = std::move(newIconMap);
+    patternMap = std::move(newPatternMap);
     pendingImageDependencies.clear();
     symbolDependenciesChanged();
 }
@@ -292,6 +294,7 @@ void GeometryTileWorker::requestNewGlyphs(const GlyphDependencies& glyphDependen
 
 void GeometryTileWorker::requestNewImages(const ImageDependencies& imageDependencies) {
     pendingImageDependencies = imageDependencies;
+
     if (!pendingImageDependencies.empty()) {
         parent.invoke(&GeometryTile::getImages, std::make_pair(pendingImageDependencies, ++imageCorrelationID));
     }
@@ -329,6 +332,8 @@ void GeometryTileWorker::parse() {
     }
 
     std::unordered_map<std::string, std::unique_ptr<SymbolLayout>> symbolLayoutMap;
+    std::unordered_map<std::string, std::shared_ptr<Bucket>> patternBucketMap;
+
     buckets.clear();
     featureIndex = std::make_unique<FeatureIndex>(*data ? (*data)->clone() : nullptr);
     BucketParameters parameters { id, mode, pixelRatio };
@@ -362,6 +367,13 @@ void GeometryTileWorker::parse() {
         }
 
         featureIndex->setBucketLayerIDs(leader.getID(), layerIDs);
+
+        if (leader.is<RenderLineLayer>()){
+            std::shared_ptr<Bucket> bucket = leader.createBucket(parameters, group);
+            bucket->addPatternDependencies(group, imageDependencies);
+            patternBucketMap.emplace(leader.getID(), std::move(bucket));
+            patternNeedsLayout = true;
+        }
 
         if (leader.is<RenderSymbolLayer>()) {
             auto layout = leader.as<RenderSymbolLayer>()->createLayout(
@@ -434,13 +446,13 @@ void GeometryTileWorker::performSymbolLayout() {
     MBGL_TIMING_START(watch)
     optional<AlphaImage> glyphAtlasImage;
     optional<PremultipliedImage> iconAtlasImage;
+    ImageAtlas iconAtlas;
 
     if (symbolLayoutsNeedPreparation) {
         GlyphAtlas glyphAtlas = makeGlyphAtlas(glyphMap);
-        ImageAtlas imageAtlas = makeImageAtlas(imageMap);
+        iconAtlas = makeImageAtlas(imageMap, patternMap);
 
         glyphAtlasImage = std::move(glyphAtlas.image);
-        iconAtlasImage = std::move(imageAtlas.image);
 
         for (auto& symbolLayout : symbolLayouts) {
             if (obsolete) {
@@ -448,7 +460,7 @@ void GeometryTileWorker::performSymbolLayout() {
             }
 
             symbolLayout->prepare(glyphMap, glyphAtlas.positions,
-                                  imageMap, imageAtlas.positions);
+                                  imageMap, iconAtlas.iconPositions);
         }
 
         symbolLayoutsNeedPreparation = false;
@@ -483,7 +495,7 @@ void GeometryTileWorker::performSymbolLayout() {
         std::move(buckets),
         std::move(featureIndex),
         std::move(glyphAtlasImage),
-        std::move(iconAtlasImage)
+        std::move(iconAtlas)
     }, correlationID);
 }
 
