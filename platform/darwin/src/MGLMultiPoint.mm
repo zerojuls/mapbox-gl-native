@@ -20,6 +20,7 @@
             [NSException raise:NSInvalidArgumentException
                         format:@"A multipoint must have at least one vertex."];
         }
+        self.enabled = YES;
         _coordinates = { coords, coords + count };
     }
 

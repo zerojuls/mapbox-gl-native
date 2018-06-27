@@ -1640,6 +1640,7 @@ CLLocationCoordinate2D randomWorldCoordinate() {
 
     MGLPolyline *line = [MGLPolyline polylineWithCoordinates:lineCoords
                                                        count:sizeof(lineCoords)/sizeof(lineCoords[0])];
+    line.enabled = NO;
     [self.mapView addAnnotation:line];
 }
 

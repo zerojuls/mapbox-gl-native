@@ -86,6 +86,16 @@ MGL_EXPORT
  */
 @property (nonatomic, copy, nullable) NSString *subtitle;
 
+// JK
+/**
+ A Boolean value indicating whether the annotation is enabled. This does
+ not impact style layers created with subclasses of `MGLShape`.
+ 
+ The default value of this property is `YES`. If the value of this property is
+ `NO`, the shape ignores touch events and cannot be selected.
+ */
+@property (nonatomic, getter=isEnabled) BOOL enabled;
+
 #if !TARGET_OS_IPHONE
 
 /**

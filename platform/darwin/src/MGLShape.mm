@@ -61,6 +61,7 @@ bool operator==(const CLLocationCoordinate2D lhs, const CLLocationCoordinate2D r
     if (self = [super init]) {
         _title = [coder decodeObjectOfClass:[NSString class] forKey:@"title"];
         _subtitle = [coder decodeObjectOfClass:[NSString class] forKey:@"subtitle"];
+        _enabled = [coder decodeBoolForKey:@"enabled"];
 #if !TARGET_OS_IPHONE
         _toolTip = [coder decodeObjectOfClass:[NSString class] forKey:@"toolTip"];
 #endif
@@ -72,6 +73,7 @@ bool operator==(const CLLocationCoordinate2D lhs, const CLLocationCoordinate2D r
 {
     [coder encodeObject:_title forKey:@"title"];
     [coder encodeObject:_subtitle forKey:@"subtitle"];
+    [coder encodeBool:_enabled forKey:@"enabled"];
 #if !TARGET_OS_IPHONE
     [coder encodeObject:_toolTip forKey:@"toolTip"];
 #endif
