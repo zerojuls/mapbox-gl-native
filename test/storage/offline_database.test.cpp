@@ -199,6 +199,7 @@ TEST(OfflineDatabase, TEST_REQUIRES_WRITE(SchemaVersion)) {
 
     {
         mapbox::sqlite::Database db = mapbox::sqlite::Database::open(filename, mapbox::sqlite::ReadWriteCreate);
+        db.setBusyTimeout(Milliseconds::max());
         db.exec("PRAGMA user_version = 1");
     }
 
