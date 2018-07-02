@@ -130,6 +130,12 @@ bool verifyUniform<std::array<float, 3>>(const ActiveUniform& uniform) {
 }
 
 template <>
+bool verifyUniform<std::array<float, 4>>(const ActiveUniform& uniform) {
+    assert(uniform.size == 1 && uniform.type == UniformDataType::FloatVec4);
+    return true;
+}
+
+template <>
 bool verifyUniform<std::array<double, 16>>(const ActiveUniform& uniform) {
     assert(uniform.size == 1 && uniform.type == UniformDataType::FloatMat4);
     return true;
