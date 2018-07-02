@@ -12,6 +12,7 @@
 #include <mbgl/util/math.hpp>
 #include <mbgl/util/intersection_tests.hpp>
 #include <mbgl/tile/geometry_tile.hpp>
+#include <mbgl/layout/pattern_layout.hpp>
 
 namespace mbgl {
 
@@ -26,8 +27,19 @@ const style::LineLayer::Impl& RenderLineLayer::impl() const {
     return static_cast<const style::LineLayer::Impl&>(*baseImpl);
 }
 
-std::unique_ptr<Bucket> RenderLineLayer::createBucket(const BucketParameters& parameters, const std::vector<const RenderLayer*>& layers) const {
-    return std::make_unique<LineBucket>(parameters, layers, impl().layout);
+std::unique_ptr<Bucket> RenderLineLayer::createBucket(const BucketParameters&, const std::vector<const RenderLayer*>&) const {
+    assert(false); // Should be calling createLayout() instead.
+    return nullptr;
+}
+
+std::unique_ptr<PatternLayout> RenderLineLayer::createLayout(const BucketParameters& parameters,
+                                                              const std::vector<const RenderLayer*>& group,
+                                                              std::unique_ptr<GeometryTileLayer> layer,
+                                                              ImageDependencies& imageDependencies) const {
+    return std::make_unique<PatternLayout>(parameters,
+                                          group,
+                                          std::move(layer),
+                                          imageDependencies);
 }
 
 void RenderLineLayer::transition(const TransitionParameters& parameters) {
@@ -122,7 +134,7 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
         } else if (!linePatternValue.from.empty()) {
             assert(dynamic_cast<GeometryTile*>(&tile.tile));
             GeometryTile& geometryTile = static_cast<GeometryTile&>(tile.tile);
-            parameters.context.bindTexture(*geometryTile.iconAtlasTexture, 0, gl::TextureFilter::Linear);
+            parameters.context.bindTexture(*geometryTile.iconAtlasTexture, 0, gl::TextureFilter::Nearest);
             const Size texsize = geometryTile.iconAtlasTexture->size;
 
             optional<ImagePosition> posA = geometryTile.getPattern(linePatternValue.from);
@@ -209,6 +221,22 @@ bool RenderLineLayer::queryIntersectsFeature(
             translatedQueryGeometry.value_or(queryGeometry),
             offsetGeometry.value_or(feature.getGeometries()),
             halfWidth);
+}
+
+RenderLinePaintProperties::PossiblyEvaluated RenderLineLayer::paintProperties() const {
+    return RenderLinePaintProperties::PossiblyEvaluated {
+            evaluated.get<style::LineOpacity>(),
+            evaluated.get<style::LineColor>(),
+            evaluated.get<style::LineTranslate>(),
+            evaluated.get<style::LineTranslateAnchor>(),
+            evaluated.get<style::LineWidth>(),
+            evaluated.get<style::LineGapWidth>(),
+            evaluated.get<style::LineOffset>(),
+            evaluated.get<style::LineBlur>(),
+            evaluated.get<style::LineDasharray>(),
+            evaluated.get<style::LinePattern>(),
+            evaluated.get<LineFloorwidth>(),
+    };
 }
 
 float RenderLineLayer::getLineWidth(const GeometryTileFeature& feature, const float zoom) const {

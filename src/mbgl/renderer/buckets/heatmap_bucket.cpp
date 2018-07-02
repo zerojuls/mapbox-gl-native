@@ -38,7 +38,8 @@ bool HeatmapBucket::hasData() const {
 }
 
 void HeatmapBucket::addFeature(std::unique_ptr<GeometryTileFeature> feature,
-                              const GeometryCollection& geometry) {
+                                     const GeometryCollection& geometry,
+                                     const ImagePositions&) {
     constexpr const uint16_t vertexLength = 4;
 
     for (auto& points : geometry) {

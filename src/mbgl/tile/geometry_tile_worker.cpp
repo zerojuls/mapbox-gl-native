@@ -2,6 +2,7 @@
 #include <mbgl/tile/geometry_tile_data.hpp>
 #include <mbgl/tile/geometry_tile.hpp>
 #include <mbgl/layout/symbol_layout.hpp>
+#include <mbgl/layout/pattern_layout.hpp>
 #include <mbgl/renderer/bucket_parameters.hpp>
 #include <mbgl/renderer/group_by_layout.hpp>
 #include <mbgl/style/filter.hpp>
@@ -9,6 +10,7 @@
 #include <mbgl/renderer/layers/render_symbol_layer.hpp>
 #include <mbgl/renderer/layers/render_line_layer.hpp>
 #include <mbgl/renderer/buckets/symbol_bucket.hpp>
+#include <mbgl/renderer/buckets/line_bucket.hpp>
 #include <mbgl/util/logging.hpp>
 #include <mbgl/util/constants.hpp>
 #include <mbgl/util/string.hpp>
@@ -331,7 +333,15 @@ void GeometryTileWorker::parse() {
         }
     }
 
+    std::vector<std::string> patternOrder;
+    for (auto it = layers->rbegin(); it != layers->rend(); it++) {
+        if ((*it)->type == LayerType::Line) {
+            patternOrder.push_back((*it)->id);
+        }
+    }
+
     std::unordered_map<std::string, std::unique_ptr<SymbolLayout>> symbolLayoutMap;
+    std::unordered_map<std::string, std::unique_ptr<PatternLayout>> patternLayoutMap;
 
     buckets.clear();
     featureIndex = std::make_unique<FeatureIndex>(*data ? (*data)->clone() : nullptr);
@@ -372,6 +382,11 @@ void GeometryTileWorker::parse() {
                 parameters, group, std::move(geometryLayer), glyphDependencies, imageDependencies);
             symbolLayoutMap.emplace(leader.getID(), std::move(layout));
             symbolLayoutsNeedPreparation = true;
+        } else if (leader.is<RenderLineLayer>()) {
+            auto layout = leader.as<RenderLineLayer>()->createLayout(
+                parameters, group, std::move(geometryLayer), imageDependencies);
+            patternLayoutMap.emplace(leader.getID(), std::move(layout));
+            patternNeedsLayout = true;
         } else {
             const Filter& filter = leader.baseImpl->filter;
             const std::string& sourceLayerID = leader.baseImpl->sourceLayer;
@@ -384,22 +399,17 @@ void GeometryTileWorker::parse() {
                     continue;
 
                 GeometryCollection geometries = feature->getGeometries();
-                bucket->addFeature(std::move(feature), geometries);
+                bucket->addFeature(std::move(feature), geometries, {});
                 featureIndex->insert(geometries, i, sourceLayerID, leader.getID());
             }
 
-            if (leader.is<RenderLineLayer>()){
-                bucket->addPatternDependencies(group, imageDependencies);
-                patternBucketMap.emplace(leader.getID(), bucket);
-                patternNeedsLayout = true;
-            } else {
-                if (!bucket->hasData()) {
-                    continue;
-                }
-                for (const auto& layer : group) {
-                    buckets.emplace(layer->getID(), bucket);
-                }
+            if (!bucket->hasData()) {
+                continue;
             }
+            for (const auto& layer : group) {
+                buckets.emplace(layer->getID(), bucket);
+            }
+
         }
     }
 
@@ -408,6 +418,14 @@ void GeometryTileWorker::parse() {
         auto it = symbolLayoutMap.find(symbolLayerID);
         if (it != symbolLayoutMap.end()) {
             symbolLayouts.push_back(std::move(it->second));
+        }
+    }
+
+    patternLayouts.clear();
+    for (const auto& patternLayerID : patternOrder) {
+        auto it = patternLayoutMap.find(patternLayerID);
+        if (it != patternLayoutMap.end()) {
+            patternLayouts.push_back(std::move(it->second));
         }
     }
 
@@ -463,23 +481,19 @@ void GeometryTileWorker::performSymbolLayout() {
         symbolLayoutsNeedPreparation = false;
     }
 
-    if (patternNeedsLayout) {
+    if (!iconAtlas.image.valid()) {
+        iconAtlas = makeImageAtlas(imageMap, patternMap);
+    }
+
+    for (auto& patternLayout : patternLayouts) {
         if (obsolete) {
             return;
         }
 
-        if (!iconAtlas.image.valid()) {
-            iconAtlas = makeImageAtlas(imageMap, patternMap);
+        std::shared_ptr<LineBucket> bucket = patternLayout->createLayout(iconAtlas.patternPositions);
+        for (const auto& pair : patternLayout->layerPaintProperties) {
+            buckets.emplace(pair.first, bucket);
         }
-
-        for ( auto it = patternBucketMap.begin(); it != patternBucketMap.end(); ++it ) {
-            const auto layerID = it->first;
-            const auto bucket = it->second;
-            bucket->populateFeatureBuffers(iconAtlas.patternPositions);
-            // need to emplace for all layers in the group?
-            buckets.emplace(layerID, bucket);
-        }
-        patternNeedsLayout = false;
     }
 
     for (auto& symbolLayout : symbolLayouts) {

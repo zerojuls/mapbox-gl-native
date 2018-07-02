@@ -11,60 +11,37 @@ namespace mbgl {
 
 using namespace style;
 
-LineBucket::LineBucket(const BucketParameters& parameters,
-                       const std::vector<const RenderLayer*>& layers,
-                       const style::LineLayoutProperties::Unevaluated& layout_)
-    : layout(layout_.evaluate(PropertyEvaluationParameters(parameters.tileID.overscaledZ))),
-      overscaling(parameters.tileID.overscaleFactor()),
-      zoom(parameters.tileID.overscaledZ) {
-    for (const auto& layer : layers) {
+LineBucket::LineBucket(const style::LineLayoutProperties::PossiblyEvaluated layout_,
+                       std::map<std::string, RenderLinePaintProperties::PossiblyEvaluated> layerPaintProperties,
+                       const float zoom_,
+                       const uint32_t overscaling_)
+    : layout(layout_),
+      zoom(zoom_),
+      overscaling(overscaling_) {
+
+    for (const auto& pair : layerPaintProperties) {
         paintPropertyBinders.emplace(
             std::piecewise_construct,
-            std::forward_as_tuple(layer->getID()),
+            std::forward_as_tuple(pair.first),
             std::forward_as_tuple(
-                layer->as<RenderLineLayer>()->evaluated,
-                parameters.tileID.overscaledZ));
+                pair.second,
+                zoom));
     }
 }
 
-void LineBucket::addPatternDependencies(const std::vector<const RenderLayer*>& layers, ImageDependencies& patternDependencies) {
-    for (const auto& layer : layers) {
-        const auto evaluatedProps = layer->as<RenderLineLayer>()->evaluated;
-        const auto patterns = evaluatedProps.get<LinePattern>().possibleOutputs();
-
-        for (auto& pattern : patterns) {
-            const auto patternString = pattern.value_or("");
-            if (!patternString.empty()) {
-                patternDependencies.emplace(patternString, ImageType::Pattern);
-            }
-        }
-    }
-}
 
 void LineBucket::addFeature(std::unique_ptr<GeometryTileFeature> feature,
-                            const GeometryCollection& geometryCollection) {
+                            const GeometryCollection& geometryCollection,
+                            const mbgl::ImagePositions& patternPositions) {
     for (auto& line : geometryCollection) {
         addGeometry(line, *feature);
     }
 
     for (auto& pair : paintPropertyBinders) {
-        pair.second.populateVertexVectors(*feature, vertices.vertexSize(), {});
+        pair.second.populateVertexVectors(*feature, vertices.vertexSize(), patternPositions);
     }
-    features.push_back(std::move(feature));
 }
 
-void LineBucket::populateFeatureBuffers(const mbgl::ImagePositions&) {
-//    for (auto& feature : features) {
-//        const GeometryCollection geometryCollection = feature->getGeometries();
-//        for (auto& line : geometryCollection) {
-//            addGeometry(line, *feature);
-//        }
-//
-//        for (auto& pair : paintPropertyBinders) {
-//            pair.second.populateVertexVectors(*feature, vertices.vertexSize(), patternPositions);
-//        }
-//    }
-}
 
 /*
  * Sharp corners cause dashed lines to tilt because the distance along the line

@@ -18,16 +18,14 @@ class RenderLineLayer;
 
 class LineBucket : public Bucket {
 public:
-    LineBucket(const BucketParameters&,
-               const std::vector<const RenderLayer*>&,
-               const style::LineLayoutProperties::Unevaluated&);
-
-    void addPatternDependencies(const std::vector<const RenderLayer*>& layers, ImageDependencies& patternDependencies) override;
+    LineBucket(const style::LineLayoutProperties::PossiblyEvaluated layout,
+               std::map<std::string, RenderLinePaintProperties::PossiblyEvaluated> layerPaintProperties,
+               const float zoom,
+               const uint32_t overscaling);
 
     void addFeature(std::unique_ptr<GeometryTileFeature>,
-                    const GeometryCollection&) override;
-
-    void populateFeatureBuffers(const ImagePositions& patternPositions) override;
+                    const GeometryCollection&,
+                    const mbgl::ImagePositions& patternPositions) override;
 
     bool hasData() const override;
 
@@ -64,10 +62,8 @@ private:
     std::ptrdiff_t e2;
     std::ptrdiff_t e3;
 
-    std::vector<std::unique_ptr<GeometryTileFeature>> features;
-
-    const uint32_t overscaling;
     const float zoom;
+    const uint32_t overscaling;
 
     float getLineWidth(const RenderLineLayer& layer) const;
 };

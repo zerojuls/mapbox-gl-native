@@ -90,7 +90,7 @@ LinePatternProgram::uniformValues(const RenderLinePaintProperties::PossiblyEvalu
                                   const Faded<std::string> pattern) {
     
     const auto linepattern = properties.get<LinePattern>();
-    const auto linePatternValue = linepattern.constantOr(mbgl::Faded<std::basic_string<char> >{ "hospital-11", "hospital-11", 2.0f, 1.0f, 0.5f});
+    const auto linePatternValue = linepattern.constantOr(mbgl::Faded<std::basic_string<char> >{ "", "", 2.0f, 1.0f, 0.5f});
 
     const auto tileRatio = 1 / tile.id.pixelsToTileUnits(1, state.getIntegerZoom());
 

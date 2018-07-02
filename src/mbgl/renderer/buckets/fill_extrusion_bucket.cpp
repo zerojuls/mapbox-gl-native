@@ -45,7 +45,8 @@ FillExtrusionBucket::FillExtrusionBucket(const BucketParameters& parameters, con
 }
 
 void FillExtrusionBucket::addFeature(std::unique_ptr<GeometryTileFeature> feature,
-                                     const GeometryCollection& geometry) {
+                                     const GeometryCollection& geometry,
+                                     const ImagePositions&) {
     for (auto& polygon : classifyRings(geometry)) {
         // Optimize polygons with many interior rings for earcut tesselation.
         limitHoles(polygon, 500);

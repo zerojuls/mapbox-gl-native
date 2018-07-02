@@ -19,6 +19,7 @@ namespace mbgl {
 class GeometryTile;
 class GeometryTileData;
 class SymbolLayout;
+class PatternLayout;
 
 namespace style {
 class Layer;
@@ -88,12 +89,13 @@ private:
     bool patternNeedsLayout = false;
 
     std::vector<std::unique_ptr<SymbolLayout>> symbolLayouts;
+    std::vector<std::unique_ptr<PatternLayout>> patternLayouts;
+
     GlyphDependencies pendingGlyphDependencies;
     ImageDependencies pendingImageDependencies;
     GlyphMap glyphMap;
     ImageMap imageMap;
     ImageMap patternMap;
-    std::unordered_map<std::string, std::shared_ptr<Bucket>> patternBucketMap;
     
     bool showCollisionBoxes;
     bool firstLoad = true;

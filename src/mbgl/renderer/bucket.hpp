@@ -23,7 +23,8 @@ public:
     // Obtaining these is a costly operation, so we do it only once, and
     // pass-by-const-ref the geometries as a second parameter.
     virtual void addFeature(std::unique_ptr<GeometryTileFeature>,
-                            const GeometryCollection&) {};
+                            const GeometryCollection&,
+                            const mbgl::ImagePositions&) {};
 
     virtual void populateFeatureBuffers(const ImagePositions&) {};
     virtual void addPatternDependencies(const std::vector<const RenderLayer*>&, ImageDependencies&) {};
