@@ -95,7 +95,8 @@ public:
 
     std::vector<optional<T>> possibleOutputs() const {
         return this->match(
-            [&] (const Faded<T>& constant_) { return std::vector<optional<T>>{ optional<T>(constant_.to), optional<T>(constant_.from) }; },
+            [&] (const Faded<T>& constant_) {
+                return std::vector<optional<T>>{ optional<T>(constant_.to), optional<T>(constant_.from) }; },
             [&] (const style::SourceFunction<T>& function) {
                 return function.possibleOutputs();
             },

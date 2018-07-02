@@ -3,6 +3,7 @@
 #include <mbgl/util/noncopyable.hpp>
 #include <mbgl/tile/geometry_tile_data.hpp>
 #include <mbgl/style/image_impl.hpp>
+#include <mbgl/renderer/image_atlas.hpp>
 #include <atomic>
 
 namespace mbgl {
@@ -21,9 +22,10 @@ public:
     // Feature geometries are also used to populate the feature index.
     // Obtaining these is a costly operation, so we do it only once, and
     // pass-by-const-ref the geometries as a second parameter.
-    virtual void addFeature(const GeometryTileFeature&,
+    virtual void addFeature(std::unique_ptr<GeometryTileFeature>,
                             const GeometryCollection&) {};
 
+    virtual void populateFeatureBuffers(const ImagePositions&) {};
     virtual void addPatternDependencies(const std::vector<const RenderLayer*>&, ImageDependencies&) {};
 
     // As long as this bucket has a Prepare render pass, this function is getting called. Typically,

@@ -11,6 +11,7 @@
 #include <mbgl/geometry/feature_index.hpp>
 #include <mbgl/util/math.hpp>
 #include <mbgl/util/intersection_tests.hpp>
+#include <mbgl/tile/geometry_tile.hpp>
 
 namespace mbgl {
 
@@ -61,10 +62,12 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
         assert(dynamic_cast<LineBucket*>(tile.tile.getBucket(*baseImpl)));
         LineBucket& bucket = *reinterpret_cast<LineBucket*>(tile.tile.getBucket(*baseImpl));
 
-        auto draw = [&] (auto& program, auto&& uniformValues) {
+        auto draw = [&] (auto& program, auto&& uniformValues, const optional<ImagePosition>& posA, const optional<ImagePosition>& posB) {
             auto& programInstance = program.get(evaluated);
 
             const auto& paintPropertyBinders = bucket.paintPropertyBinders.at(getID());
+
+            paintPropertyBinders.setConstantPatternPositions(posA, posB);
 
             const auto allUniformValues = programInstance.computeAllUniformValues(
                 std::move(uniformValues),
@@ -94,7 +97,8 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
             );
         };
         const auto linepattern = evaluated.get<LinePattern>();
-        const auto linePatternValue = linepattern.constantOr(mbgl::Faded<std::basic_string<char> >{ "hospital-11", "hospital-11", 2.0f, 1.0f, 0.5f});
+        // need a placeholder value that will trigget line pattern program if the line-pattern value is non-constant
+        const auto linePatternValue = linepattern.constantOr(mbgl::Faded<std::basic_string<char> >{ "temp", "temp", 2.0f, 1.0f, 0.5f});
 
         if (!evaluated.get<LineDasharray>().from.empty()) {
             const LinePatternCap cap = bucket.layout.get<LineCap>() == LineCapType::Round
@@ -113,16 +117,16 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
                      parameters.pixelsToGLUnits,
                      posA,
                      posB,
-                     parameters.lineAtlas.getSize().width));
+                     parameters.lineAtlas.getSize().width), {}, {});
 
         } else if (!linePatternValue.from.empty()) {
-            optional<ImagePosition> posA = parameters.imageManager.getPattern(linePatternValue.from);
-            optional<ImagePosition> posB = parameters.imageManager.getPattern(linePatternValue.to);
+            assert(dynamic_cast<GeometryTile*>(&tile.tile));
+            GeometryTile& geometryTile = static_cast<GeometryTile&>(tile.tile);
+            parameters.context.bindTexture(*geometryTile.iconAtlasTexture, 0, gl::TextureFilter::Linear);
+            const Size texsize = geometryTile.iconAtlasTexture->size;
 
-            if (!posA || !posB)
-                return;
-
-            parameters.imageManager.bind(parameters.context, 0);
+            optional<ImagePosition> posA = geometryTile.getPattern(linePatternValue.from);
+            optional<ImagePosition> posB = geometryTile.getPattern(linePatternValue.to);
 
             draw(parameters.programs.linePattern,
                  LinePatternProgram::uniformValues(
@@ -130,9 +134,10 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
                      tile,
                      parameters.state,
                      parameters.pixelsToGLUnits,
-                     parameters.imageManager.getPixelSize(),
+                     texsize,
+                     linePatternValue),
                      *posA,
-                     *posB));
+                     *posB);
 
         } else {
             draw(parameters.programs.line,
@@ -140,7 +145,7 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
                      evaluated,
                      tile,
                      parameters.state,
-                     parameters.pixelsToGLUnits));
+                     parameters.pixelsToGLUnits), {}, {});
         }
     }
 }

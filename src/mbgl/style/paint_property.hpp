@@ -37,9 +37,10 @@ public:
     using Attribute = A;
     using Attributes = TypeList<A>;
     using Uniform = U;
+    using Uniforms = TypeList<U>;
 };
 
-template <class T, class A1, class A2, class U1, class U2>
+template <class T, class A1, class U1, class A2, class U2>
 class CrossFadedDataDrivenPaintProperty {
 public:
     using TransitionableType = Transitionable<DataDrivenPropertyValue<T>>;

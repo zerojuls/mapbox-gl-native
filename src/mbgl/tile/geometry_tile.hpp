@@ -83,12 +83,12 @@ public:
     void onLayout(LayoutResult, uint64_t correlationID);
 
     void onError(std::exception_ptr, uint64_t correlationID);
-    
+
     bool holdForFade() const override;
     void markRenderedIdeal() override;
     void markRenderedPreviously() override;
     void performedFadePlacement() override;
-    
+    const optional<ImagePosition> getPattern(const std::string& id);
     const std::shared_ptr<FeatureIndex> getFeatureIndex() const { return latestFeatureIndex; }
     
 protected:

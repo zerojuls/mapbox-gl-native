@@ -90,10 +90,10 @@ private:
     std::vector<std::unique_ptr<SymbolLayout>> symbolLayouts;
     GlyphDependencies pendingGlyphDependencies;
     ImageDependencies pendingImageDependencies;
-    ImageDependencies pendingPatternDependencies;
     GlyphMap glyphMap;
     ImageMap imageMap;
     ImageMap patternMap;
+    std::unordered_map<std::string, std::shared_ptr<Bucket>> patternBucketMap;
     
     bool showCollisionBoxes;
     bool firstLoad = true;

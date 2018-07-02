@@ -106,8 +106,6 @@ class LinePatternProgram : public Program<
         uniforms::u_matrix,
         uniforms::u_ratio,
         uniforms::u_gl_units_to_pixels,
-        uniforms::u_pattern_to,
-        uniforms::u_pattern_from,
         uniforms::u_scale,
         uniforms::u_texsize,
         uniforms::u_fade,
@@ -122,9 +120,7 @@ public:
                                        const TransformState&,
                                        const std::array<float, 2>& pixelsToGLUnits,
                                        Size atlasSize,
-                                       const Faded<std::string> pattern,
-                                       const ImagePosition& posA,
-                                       const ImagePosition& posB);
+                                       const Faded<std::string> pattern);
 };
 
 class LineSDFProgram : public Program<

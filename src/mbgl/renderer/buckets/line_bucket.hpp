@@ -24,10 +24,10 @@ public:
 
     void addPatternDependencies(const std::vector<const RenderLayer*>& layers, ImageDependencies& patternDependencies) override;
 
-    void addFeature(const GeometryTileFeature&,
+    void addFeature(std::unique_ptr<GeometryTileFeature>,
                     const GeometryCollection&) override;
 
-    void populateFeatureBuffers(const ImagePositions& patternPositions);
+    void populateFeatureBuffers(const ImagePositions& patternPositions) override;
 
     bool hasData() const override;
 
@@ -64,7 +64,7 @@ private:
     std::ptrdiff_t e2;
     std::ptrdiff_t e3;
 
-    std::vector<std::pair<const GeometryTileFeature&, const GeometryCollection&>> features;
+    std::vector<std::unique_ptr<GeometryTileFeature>> features;
 
     const uint32_t overscaling;
     const float zoom;

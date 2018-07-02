@@ -17,7 +17,7 @@ class CircleBucket : public Bucket {
 public:
     CircleBucket(const BucketParameters&, const std::vector<const RenderLayer*>&);
 
-    void addFeature(const GeometryTileFeature&,
+    void addFeature(std::unique_ptr<GeometryTileFeature>,
                     const GeometryCollection&) override;
     bool hasData() const override;
 

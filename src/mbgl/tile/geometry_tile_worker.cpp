@@ -189,10 +189,10 @@ void GeometryTileWorker::symbolDependenciesChanged() {
     try {
         switch (state) {
         case Idle:
-            if (symbolLayoutsNeedPreparation) {
-                // symbolLayoutsNeedPreparation can only be set true by parsing
+            if (symbolLayoutsNeedPreparation || patternNeedsLayout) {
+                // symbolLayoutsNeedPreparation and patternNeedsLayout can only be set true by parsing
                 // and the parse result can only be cleared by performSymbolLayout
-                // which also clears symbolLayoutsNeedPreparation
+                // which also clears symbolLayoutsNeedPreparation and patternNeedsLayout
                 assert(hasPendingParseResult());
                 performSymbolLayout();
                 coalesce();
@@ -332,7 +332,6 @@ void GeometryTileWorker::parse() {
     }
 
     std::unordered_map<std::string, std::unique_ptr<SymbolLayout>> symbolLayoutMap;
-    std::unordered_map<std::string, std::shared_ptr<Bucket>> patternBucketMap;
 
     buckets.clear();
     featureIndex = std::make_unique<FeatureIndex>(*data ? (*data)->clone() : nullptr);
@@ -368,13 +367,6 @@ void GeometryTileWorker::parse() {
 
         featureIndex->setBucketLayerIDs(leader.getID(), layerIDs);
 
-        if (leader.is<RenderLineLayer>()){
-            std::shared_ptr<Bucket> bucket = leader.createBucket(parameters, group);
-            bucket->addPatternDependencies(group, imageDependencies);
-            patternBucketMap.emplace(leader.getID(), std::move(bucket));
-            patternNeedsLayout = true;
-        }
-
         if (leader.is<RenderSymbolLayer>()) {
             auto layout = leader.as<RenderSymbolLayer>()->createLayout(
                 parameters, group, std::move(geometryLayer), glyphDependencies, imageDependencies);
@@ -392,16 +384,21 @@ void GeometryTileWorker::parse() {
                     continue;
 
                 GeometryCollection geometries = feature->getGeometries();
-                bucket->addFeature(*feature, geometries);
+                bucket->addFeature(std::move(feature), geometries);
                 featureIndex->insert(geometries, i, sourceLayerID, leader.getID());
             }
 
-            if (!bucket->hasData()) {
-                continue;
-            }
-
-            for (const auto& layer : group) {
-                buckets.emplace(layer->getID(), bucket);
+            if (leader.is<RenderLineLayer>()){
+                bucket->addPatternDependencies(group, imageDependencies);
+                patternBucketMap.emplace(leader.getID(), bucket);
+                patternNeedsLayout = true;
+            } else {
+                if (!bucket->hasData()) {
+                    continue;
+                }
+                for (const auto& layer : group) {
+                    buckets.emplace(layer->getID(), bucket);
+                }
             }
         }
     }
@@ -464,6 +461,25 @@ void GeometryTileWorker::performSymbolLayout() {
         }
 
         symbolLayoutsNeedPreparation = false;
+    }
+
+    if (patternNeedsLayout) {
+        if (obsolete) {
+            return;
+        }
+
+        if (!iconAtlas.image.valid()) {
+            iconAtlas = makeImageAtlas(imageMap, patternMap);
+        }
+
+        for ( auto it = patternBucketMap.begin(); it != patternBucketMap.end(); ++it ) {
+            const auto layerID = it->first;
+            const auto bucket = it->second;
+            bucket->populateFeatureBuffers(iconAtlas.patternPositions);
+            // need to emplace for all layers in the group?
+            buckets.emplace(layerID, bucket);
+        }
+        patternNeedsLayout = false;
     }
 
     for (auto& symbolLayout : symbolLayouts) {

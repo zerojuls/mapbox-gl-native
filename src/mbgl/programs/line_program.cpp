@@ -87,9 +87,7 @@ LinePatternProgram::uniformValues(const RenderLinePaintProperties::PossiblyEvalu
                                   const TransformState& state,
                                   const std::array<float, 2>& pixelsToGLUnits,
                                   const Size atlasSize,
-                                  const Faded<std::string> pattern,
-                                  const ImagePosition& posA,
-                                  const ImagePosition& posB) {
+                                  const Faded<std::string> pattern) {
     
     const auto linepattern = properties.get<LinePattern>();
     const auto linePatternValue = linepattern.constantOr(mbgl::Faded<std::basic_string<char> >{ "hospital-11", "hospital-11", 2.0f, 1.0f, 0.5f});
@@ -101,9 +99,8 @@ LinePatternProgram::uniformValues(const RenderLinePaintProperties::PossiblyEvalu
         tile,
         state,
         pixelsToGLUnits,
-        uniforms::u_pattern_to::Value{ {{posA.tl()[0], posA.tl()[1], posA.br()[0], posA.br()[1]}} },
-        uniforms::u_pattern_from::Value{ {{posB.tl()[0], posB.tl()[1], posB.br()[0], posB.br()[1]}} },
-        uniforms::u_scale::Value{ {{posB.pixelRatio, tileRatio, pattern.toScale, pattern.fromScale}}  },
+        // TODO get real pixel ratio
+        uniforms::u_scale::Value{ {{ 2.0f, tileRatio, pattern.fromScale, pattern.toScale}}  },
         uniforms::u_texsize::Value{ atlasSize },
         uniforms::u_fade::Value{ linePatternValue.t },
         uniforms::u_image::Value{ 0 }
