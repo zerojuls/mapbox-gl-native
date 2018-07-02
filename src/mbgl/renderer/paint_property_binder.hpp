@@ -160,7 +160,6 @@ template <class T, class A>
 class SourceFunctionPaintPropertyBinder : public PaintPropertyBinder<T, T, PossiblyEvaluatedPropertyValue<T>, A> {
 public:
     using BaseAttribute = A;
-    using BaseAttributeValue = typename BaseAttribute::Value;
     using BaseVertex = gl::detail::Vertex<BaseAttribute>;
 
     using AttributeType = ZoomInterpolatedAttributeType<A>;
@@ -281,9 +280,14 @@ public:
     using AttributeType = ZoomInterpolatedAttributeType<A1>;
     using AttributeType2 = ZoomInterpolatedAttributeType<A2>;
 
-    using AttributeValue = typename AttributeType::Value;
-    using AttributeValue2 = typename AttributeType2::Value;
-    using Vertex = gl::detail::Vertex<AttributeType, AttributeType2>;
+    using BaseAttribute = A1;
+    using BaseAttributeValue = typename BaseAttribute::Value;
+
+    using BaseAttribute2 = A2;
+    using BaseAttributeValue2 = typename BaseAttribute2::Value;
+
+    using Vertex = gl::detail::Vertex<BaseAttribute>;
+    using Vertex2 = gl::detail::Vertex<BaseAttribute2>;
 
     CompositeCrossFadedPaintPropertyBinder(variant<style::CompositeFunction<T>, style::SourceFunction<T>> function_, float zoom, T defaultValue_)
         : function(std::move(function_)),
@@ -313,19 +317,20 @@ public:
             const ImagePosition imageMid = mid->second;
             const ImagePosition imageMax = max->second;
 
-            const AttributeValue patternTo = {{ imageMid.tl()[0], imageMid.tl()[1], imageMid.br()[0], imageMid.br()[1] }};
-
-            const AttributeValue patternFromZoomIn = {{ imageMin.tl()[0], imageMin.tl()[1], imageMin.br()[0], imageMin.br()[1] }};
-            const AttributeValue patternFromZoomOut = {{ imageMax.tl()[0], imageMax.tl()[1], imageMax.br()[0], imageMax.br()[1] }};
+            const BaseAttributeValue patternTo = {{ imageMid.tl()[0], imageMid.tl()[1], imageMid.br()[0], imageMid.br()[1] }};
+            const BaseAttributeValue2 patternFromZoomIn = {{ imageMin.tl()[0], imageMin.tl()[1], imageMin.br()[0], imageMin.br()[1] }};
+            const BaseAttributeValue2 patternFromZoomOut = {{ imageMax.tl()[0], imageMax.tl()[1], imageMax.br()[0], imageMax.br()[1] }};
 
             for (std::size_t i = zoomInVertexVector.vertexSize(); i < length; ++i) {
-                zoomInVertexVector.emplace_back(Vertex { patternTo, patternFromZoomIn });
-                zoomOutVertexVector.emplace_back(Vertex { patternTo, patternFromZoomOut });
+                patternToVertexVector.emplace_back(Vertex { patternTo });
+                zoomInVertexVector.emplace_back(Vertex2 { patternFromZoomIn });
+                zoomOutVertexVector.emplace_back(Vertex2 { patternFromZoomOut });
             }
         }
     }
 
     void upload(gl::Context& context) override {
+        patternToVertexBuffer = context.createVertexBuffer(std::move(patternToVertexVector));
         zoomInVertexBuffer = context.createVertexBuffer(std::move(zoomInVertexVector));
         zoomOutVertexBuffer = context.createVertexBuffer(std::move(zoomOutVertexVector));
     }
@@ -334,7 +339,7 @@ public:
         if (currentValue.isConstant()) {
             return {};
         } else {
-            return {AttributeType::binding(*zoomInVertexBuffer, 0), AttributeType2::binding(*zoomOutVertexBuffer, 0)};
+            return {AttributeType::binding(*patternToVertexBuffer, 0, BaseAttribute::Dimensions), AttributeType2::binding(*zoomInVertexBuffer, 0, BaseAttribute2::Dimensions)};
         }
     }
 
@@ -351,10 +356,12 @@ private:
     variant<style::CompositeFunction<T>, style::SourceFunction<T>> function;
     T defaultValue;
     Range<float> zoomRange;
-    gl::VertexVector<Vertex> zoomInVertexVector;
-    gl::VertexVector<Vertex> zoomOutVertexVector;
-    optional<gl::VertexBuffer<Vertex>> zoomInVertexBuffer;
-    optional<gl::VertexBuffer<Vertex>> zoomOutVertexBuffer;
+    gl::VertexVector<Vertex> patternToVertexVector;
+    gl::VertexVector<Vertex2> zoomInVertexVector;
+    gl::VertexVector<Vertex2> zoomOutVertexVector;
+    optional<gl::VertexBuffer<Vertex>> patternToVertexBuffer;
+    optional<gl::VertexBuffer<Vertex2>> zoomInVertexBuffer;
+    optional<gl::VertexBuffer<Vertex2>> zoomOutVertexBuffer;
 };
 
 template <class T, class PossiblyEvaluatedType>
