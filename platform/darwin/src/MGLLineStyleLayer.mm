@@ -379,7 +379,7 @@ namespace mbgl {
 - (void)setLinePattern:(NSExpression *)linePattern {
     MGLAssertStyleLayerIsValid();
 
-    auto mbglValue = MGLStyleValueTransformer<std::string, NSString *>().toPropertyValue<mbgl::style::PropertyValue<std::string>>(linePattern);
+    auto mbglValue = MGLStyleValueTransformer<std::string, NSString *>().toPropertyValue<mbgl::style::DataDrivenPropertyValue<std::string>>(linePattern);
     self.rawLayer->setLinePattern(mbglValue);
 }
 
