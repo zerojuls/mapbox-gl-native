@@ -23,7 +23,7 @@ public:
                const float zoom,
                const uint32_t overscaling);
 
-    void addFeature(std::unique_ptr<GeometryTileFeature>,
+    void addFeature(const GeometryTileFeature&,
                     const GeometryCollection&,
                     const mbgl::ImagePositions& patternPositions) override;
 

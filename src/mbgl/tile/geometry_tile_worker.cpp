@@ -399,7 +399,7 @@ void GeometryTileWorker::parse() {
                     continue;
 
                 GeometryCollection geometries = feature->getGeometries();
-                bucket->addFeature(std::move(feature), geometries, {});
+                bucket->addFeature(*feature, geometries, {});
                 featureIndex->insert(geometries, i, sourceLayerID, leader.getID());
             }
 

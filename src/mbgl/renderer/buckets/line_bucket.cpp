@@ -30,15 +30,15 @@ LineBucket::LineBucket(const style::LineLayoutProperties::PossiblyEvaluated layo
 }
 
 
-void LineBucket::addFeature(std::unique_ptr<GeometryTileFeature> feature,
+void LineBucket::addFeature(const GeometryTileFeature& feature,
                             const GeometryCollection& geometryCollection,
                             const mbgl::ImagePositions& patternPositions) {
     for (auto& line : geometryCollection) {
-        addGeometry(line, *feature);
+        addGeometry(line, feature);
     }
 
     for (auto& pair : paintPropertyBinders) {
-        pair.second.populateVertexVectors(*feature, vertices.vertexSize(), patternPositions);
+        pair.second.populateVertexVectors(feature, vertices.vertexSize(), patternPositions);
     }
 }
 

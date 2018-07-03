@@ -44,7 +44,7 @@ FillExtrusionBucket::FillExtrusionBucket(const BucketParameters& parameters, con
     }
 }
 
-void FillExtrusionBucket::addFeature(std::unique_ptr<GeometryTileFeature> feature,
+void FillExtrusionBucket::addFeature(const GeometryTileFeature& feature,
                                      const GeometryCollection& geometry,
                                      const ImagePositions&) {
     for (auto& polygon : classifyRings(geometry)) {
@@ -143,7 +143,7 @@ void FillExtrusionBucket::addFeature(std::unique_ptr<GeometryTileFeature> featur
     }
 
     for (auto& pair : paintPropertyBinders) {
-        pair.second.populateVertexVectors(*feature, vertices.vertexSize(), {});
+        pair.second.populateVertexVectors(feature, vertices.vertexSize(), {});
     }
 }
 

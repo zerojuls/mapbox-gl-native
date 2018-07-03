@@ -22,7 +22,7 @@ public:
     // Feature geometries are also used to populate the feature index.
     // Obtaining these is a costly operation, so we do it only once, and
     // pass-by-const-ref the geometries as a second parameter.
-    virtual void addFeature(std::unique_ptr<GeometryTileFeature>,
+    virtual void addFeature(const GeometryTileFeature&,
                             const GeometryCollection&,
                             const mbgl::ImagePositions&) {};
 

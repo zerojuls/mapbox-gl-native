@@ -44,7 +44,7 @@ std::unique_ptr<LineBucket> PatternLayout::createLayout(const ImagePositions& pa
         auto& feature = *it;
         GeometryCollection geometries = feature->getGeometries();
 
-        bucket->addFeature(std::move(feature), geometries, patternPositions);
+        bucket->addFeature(*feature, geometries, patternPositions);
     }
     return bucket;
 };

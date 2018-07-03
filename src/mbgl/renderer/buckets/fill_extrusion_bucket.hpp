@@ -16,7 +16,7 @@ class FillExtrusionBucket : public Bucket {
 public:
     FillExtrusionBucket(const BucketParameters&, const std::vector<const RenderLayer*>&);
 
-    virtual void addFeature(std::unique_ptr<GeometryTileFeature>,
+    virtual void addFeature(const GeometryTileFeature&,
                             const GeometryCollection&,
                             const mbgl::ImagePositions&) override;
     bool hasData() const override;
