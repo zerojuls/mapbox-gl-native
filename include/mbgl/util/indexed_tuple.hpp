@@ -28,8 +28,6 @@ class IndexedTuple<TypeList<Is...>, TypeList<Ts...>> : public tuple_polyfill<Ts.
 public:
     static_assert(sizeof...(Is) == sizeof...(Ts), "IndexedTuple size mismatch");
 
-    using tuple_polyfill<Ts...>::tuple;
-
     template <class I>
     auto& get() {
         return get_polyfill<TypeIndex<I, Is...>::value>(*this);

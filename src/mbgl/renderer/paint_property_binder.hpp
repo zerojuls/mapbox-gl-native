@@ -139,7 +139,7 @@ public:
         }
     }
 
-    std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
+    std::tuple<optional<gl::AttributeBinding>, optional<gl::AttributeBinding>> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
         return std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> {};
     }
 
@@ -386,17 +386,17 @@ struct CreateBinder {
 
 template <class T>
 struct CreateBinder<T, PossiblyEvaluatedPropertyValue<Faded<T>>> {
-    template <class... As>
-    static std::unique_ptr<PaintPropertyBinder<T, std::array<uint16_t, 4>, PossiblyEvaluatedPropertyValue<Faded<T>>, As...>> create(const PossiblyEvaluatedPropertyValue<Faded<T>>& value, float zoom, T defaultValue) {
+    template <class A1, class A2>
+    static std::unique_ptr<PaintPropertyBinder<T, std::array<uint16_t, 4>, PossiblyEvaluatedPropertyValue<Faded<T>>, A1, A2>> create(const PossiblyEvaluatedPropertyValue<Faded<T>>& value, float zoom, T defaultValue) {
         return value.match(
-            [&] (const Faded<T>& constant) -> std::unique_ptr<PaintPropertyBinder<T, std::array<uint16_t, 4>, PossiblyEvaluatedPropertyValue<Faded<T>>, As...>> {
-                return std::make_unique<ConstantCrossFadedPaintPropertyBinder<T, As...>>(constant);
+            [&] (const Faded<T>& constant) -> std::unique_ptr<PaintPropertyBinder<T, std::array<uint16_t, 4>, PossiblyEvaluatedPropertyValue<Faded<T>>, A1, A2>> {
+                return std::make_unique<ConstantCrossFadedPaintPropertyBinder<T, A1, A2>>(constant);
             },
             [&] (const style::SourceFunction<T>& function) {
-                return std::make_unique<CompositeCrossFadedPaintPropertyBinder<T, As...>>(function, zoom, defaultValue);
+                return std::make_unique<CompositeCrossFadedPaintPropertyBinder<T, A1, A2>>(function, zoom, defaultValue);
             },
             [&] (const style::CompositeFunction<T>& function) {
-                return std::make_unique<CompositeCrossFadedPaintPropertyBinder<T, As...>>(function, zoom, defaultValue);
+                return std::make_unique<CompositeCrossFadedPaintPropertyBinder<T, A1, A2>>(function, zoom, defaultValue);
             }
         );
     }
@@ -489,22 +489,23 @@ public:
     template <class EvaluatedProperties>
     AttributeBindings attributeBindings(const EvaluatedProperties& currentProperties) const {
         return AttributeBindings { std::tuple_cat(
-           binders.template get<Ps>()->attributeBinding(currentProperties.template get<Ps>())...) };
+           binders.template get<Ps>()->attributeBinding(currentProperties.template get<Ps>())...
+        ) };
     }
 
-    using Uniforms = typename TypeListConcat<InterpolationUniformList<Ps>..., TypeListConcat<typename Ps::Uniforms...>>::template ExpandInto<gl::Uniforms>;
+    using Uniforms = typename TypeListConcat<InterpolationUniformList<Ps>..., typename Ps::Uniforms...>::template ExpandInto<gl::Uniforms>;
     using UniformValues = typename Uniforms::Values;
 
     template <class EvaluatedProperties>
-    UniformValues uniformValues(float currentZoom, const EvaluatedProperties& currentProperties) const {
+    UniformValues uniformValues(float currentZoom, EvaluatedProperties& currentProperties) const {
         (void)currentZoom; // Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56958
-        return UniformValues { std::tuple_cat(
-            // interpolation uniform values
-            std::tuple_cat( binders.template get<Ps>()->interpolationFactor(currentZoom)...),
-            // uniform values
-            std::tuple_cat( binders.template get<Ps>()->uniformValue(currentProperties.template get<Ps>())...)
-            )
-        };
+        return UniformValues (
+            std::tuple_cat(
+                // interpolation uniform values
+                binders.template get<Ps>()->interpolationFactor(currentZoom)...,
+                // uniform values
+                binders.template get<Ps>()->uniformValue(currentProperties.template get<Ps>())...)
+        );
     }
 
     template <class P>
