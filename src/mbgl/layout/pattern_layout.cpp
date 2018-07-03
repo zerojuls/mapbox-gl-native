@@ -40,8 +40,7 @@ PatternLayout::PatternLayout(const BucketParameters& parameters,
 
 std::unique_ptr<LineBucket> PatternLayout::createLayout(const ImagePositions& patternPositions) {
     auto bucket = std::make_unique<LineBucket>(layout, layerPaintProperties, zoom, overscaling);
-    for (auto it = features.begin(); it != features.end(); ++it) {
-        auto& feature = *it;
+    for (auto & feature : features) {
         GeometryCollection geometries = feature->getGeometries();
 
         bucket->addFeature(*feature, geometries, patternPositions);

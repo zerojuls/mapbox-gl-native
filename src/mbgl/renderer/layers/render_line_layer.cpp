@@ -74,12 +74,12 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
         assert(dynamic_cast<LineBucket*>(tile.tile.getBucket(*baseImpl)));
         LineBucket& bucket = *reinterpret_cast<LineBucket*>(tile.tile.getBucket(*baseImpl));
 
-        auto draw = [&] (auto& program, auto&& uniformValues, const optional<ImagePosition>& posA, const optional<ImagePosition>& posB) {
+        auto draw = [&] (auto& program, auto&& uniformValues, const optional<ImagePosition>& patternPositionA, const optional<ImagePosition>& patternPositionB) {
             auto& programInstance = program.get(evaluated);
 
             const auto& paintPropertyBinders = bucket.paintPropertyBinders.at(getID());
 
-            paintPropertyBinders.setConstantPatternPositions(posA, posB);
+            paintPropertyBinders.setConstantPatternPositions(patternPositionA, patternPositionB);
 
             const auto allUniformValues = programInstance.computeAllUniformValues(
                 std::move(uniformValues),

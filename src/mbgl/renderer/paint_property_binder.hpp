@@ -106,15 +106,15 @@ public:
     void setConstantPatternPositions(const optional<ImagePosition>&, const optional<ImagePosition>&) override {};
 
     std::tuple<optional<gl::AttributeBinding>> attributeBinding(const PossiblyEvaluatedPropertyValue<T>&) const override {
-        return {};
+        return std::tuple<optional<gl::AttributeBinding>> {};
     }
 
     std::tuple<float> interpolationFactor(float) const override {
-        return {0.0f};
+        return std::tuple<float> { 0.0f };
     }
 
     std::tuple<T> uniformValue(const PossiblyEvaluatedPropertyValue<T>& currentValue) const override {
-        return currentValue.constantOr(constant);
+        return std::tuple<T> { currentValue.constantOr(constant) };
     }
 
 private:
@@ -135,16 +135,16 @@ public:
         if (!posA && !posB) {
             return;
         } else {
-            constantPatternPositions = { {{posB->tl()[0], posB->tl()[1], posB->br()[0], posB->br()[1]}}, {{posA->tl()[0], posA->tl()[1], posA->br()[0], posA->br()[1]}} };
+            constantPatternPositions = std::tuple<std::array<uint16_t, 4>, std::array<uint16_t, 4>> { {{posB->tl()[0], posB->tl()[1], posB->br()[0], posB->br()[1]}}, {{posA->tl()[0], posA->tl()[1], posA->br()[0], posA->br()[1]}} };
         }
     }
 
     std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> attributeBinding(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
-        return {};
+        return std::tuple<ExpandToType<As, optional<gl::AttributeBinding>>...> {};
     }
 
     std::tuple<float, float> interpolationFactor(float) const override {
-        return {0.0f, 0.0f};
+        return std::tuple<float, float> { 0.0f, 0.0f };
     }
 
     std::tuple<std::array<uint16_t, 4>, std::array<uint16_t, 4>> uniformValue(const PossiblyEvaluatedPropertyValue<Faded<T>>&) const override {
@@ -186,17 +186,17 @@ public:
         if (currentValue.isConstant()) {
             return {};
         } else {
-            return {AttributeType::binding(*vertexBuffer, 0, BaseAttribute::Dimensions)};
+            return std::tuple<optional<gl::AttributeBinding>> { AttributeType::binding(*vertexBuffer, 0, BaseAttribute::Dimensions) };
         }
     }
 
     std::tuple<float> interpolationFactor(float) const override {
-        return {0.0f};
+        return std::tuple<float> { 0.0f };
     }
 
     std::tuple<T> uniformValue(const PossiblyEvaluatedPropertyValue<T>& currentValue) const override {
         if (currentValue.isConstant()) {
-            return {*currentValue.constant()};
+            return std::tuple<T>{ *currentValue.constant() };
         } else {
             // Uniform values for vertex attribute arrays are unused.
             return {};
@@ -244,21 +244,21 @@ public:
         if (currentValue.isConstant()) {
             return {};
         } else {
-            return AttributeType::binding(*vertexBuffer, 0);
+            return std::tuple<optional<gl::AttributeBinding>> { AttributeType::binding(*vertexBuffer, 0) };
         }
     }
 
     std::tuple<float> interpolationFactor(float currentZoom) const override {
         if (function.useIntegerZoom) {
-            return function.interpolationFactor(zoomRange, std::floor(currentZoom));
+            return std::tuple<float> { function.interpolationFactor(zoomRange, std::floor(currentZoom)) };
         } else {
-            return function.interpolationFactor(zoomRange, currentZoom);
+            return std::tuple<float> { function.interpolationFactor(zoomRange, currentZoom) };
         }
     }
 
     std::tuple<T> uniformValue(const PossiblyEvaluatedPropertyValue<T>& currentValue) const override {
         if (currentValue.isConstant()) {
-            return *currentValue.constant();
+            return std::tuple<T> { *currentValue.constant() };
         } else {
             // Uniform values for vertex attribute arrays are unused.
             return {};
@@ -294,7 +294,9 @@ public:
           defaultValue(std::move(defaultValue_)),
           zoomRange({zoom, zoom + 1}) {
     }
+
     void setConstantPatternPositions(const optional<ImagePosition>&, const optional<ImagePosition>&) override {};
+
     void populateVertexVector(const GeometryTileFeature& feature, std::size_t length, const ImagePositions& patternPositions) override {
         std::array<T, 3> range = function.match(
             [&] (const style::SourceFunction<T>& _function) -> std::array<T, 3> {
@@ -339,12 +341,12 @@ public:
         if (currentValue.isConstant()) {
             return {};
         } else {
-            return {AttributeType::binding(*patternToVertexBuffer, 0, BaseAttribute::Dimensions), AttributeType2::binding(*zoomInVertexBuffer, 0, BaseAttribute2::Dimensions)};
+            return std::tuple<optional<gl::AttributeBinding>, optional<gl::AttributeBinding>> { AttributeType::binding(*patternToVertexBuffer, 0, BaseAttribute::Dimensions), AttributeType2::binding(*zoomInVertexBuffer, 0, BaseAttribute2::Dimensions) };
         }
     }
 
     std::tuple<float, float> interpolationFactor(float) const override {
-        return {0.0f, 0.0f};
+        return std::tuple<float, float> { 0.0f, 0.0f };
     }
 
     std::tuple<std::array<uint16_t, 4>, std::array<uint16_t, 4>>  uniformValue(const PossiblyEvaluatedPropertyValue<Faded<T>>& ) const override {
