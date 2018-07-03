@@ -120,7 +120,8 @@ public:
                                        const TransformState&,
                                        const std::array<float, 2>& pixelsToGLUnits,
                                        Size atlasSize,
-                                       const Faded<std::string> pattern);
+                                       const Faded<std::string> pattern,
+                                       const float pixelRatio);
 };
 
 class LineSDFProgram : public Program<

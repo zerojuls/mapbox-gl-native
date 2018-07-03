@@ -147,7 +147,8 @@ void RenderLineLayer::render(PaintParameters& parameters, RenderSource*) {
                      parameters.state,
                      parameters.pixelsToGLUnits,
                      texsize,
-                     linePatternValue),
+                     linePatternValue,
+                     parameters.pixelRatio),
                      *posA,
                      *posB);
 
