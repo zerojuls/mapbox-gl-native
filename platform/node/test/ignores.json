@@ -87,5 +87,8 @@
   "render-tests/combinations/symbol-translucent--fill-extrusion-translucent": "needs investigation",
   "render-tests/feature-state/composite-expression": "skip - port https://github.com/mapbox/mapbox-gl-js/pull/6263 - needs issue",
   "render-tests/feature-state/data-expression": "skip - port https://github.com/mapbox/mapbox-gl-js/pull/6263 - needs issue",
-  "render-tests/feature-state/vector-source": "skip - port https://github.com/mapbox/mapbox-gl-js/pull/6263 - needs issue"
+  "render-tests/feature-state/vector-source": "skip - port https://github.com/mapbox/mapbox-gl-js/pull/6263 - needs issue",
+  "render-tests/symbol-placement/line-center-buffer": "https://github.com/mapbox/mapbox-gl-native/issues/12300",
+  "render-tests/symbol-placement/line-center": "https://github.com/mapbox/mapbox-gl-native/issues/12300",
+  "render-tests/text-max-angle/line-center": "https://github.com/mapbox/mapbox-gl-native/issues/12300"
 }

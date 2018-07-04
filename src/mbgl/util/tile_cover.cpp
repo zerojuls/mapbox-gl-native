@@ -96,7 +96,8 @@ std::vector<UnwrappedTileID> tileCover(Point<double> tl,
 
     std::vector<ID> t;
 
-    constexpr double maxPitchForUnlimitedCoverage = 45.0 * DEG2RAD;
+    // Increase 0.1 radians to cover for conversion precision loss.
+    constexpr double maxPitchForUnlimitedCoverage = 60.0 * DEG2RAD + 0.1;
 
     // Clamp the axis-aligned coverage area to the nearest 3 neighbor tiles.
     if (pitch > maxPitchForUnlimitedCoverage) {
