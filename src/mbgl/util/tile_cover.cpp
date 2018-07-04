@@ -1,6 +1,7 @@
 #include <mbgl/util/tile_cover.hpp>
 #include <mbgl/util/constants.hpp>
 #include <mbgl/util/interpolate.hpp>
+#include <mbgl/util/math.hpp>
 #include <mbgl/map/transform_state.hpp>
 #include <mbgl/util/tile_cover_impl.hpp>
 #include <mbgl/util/tile_coordinate.hpp>
@@ -78,12 +79,14 @@ namespace util {
 
 namespace {
 
-std::vector<UnwrappedTileID> tileCover(const Point<double>& tl,
-                                       const Point<double>& tr,
-                                       const Point<double>& br,
-                                       const Point<double>& bl,
+std::vector<UnwrappedTileID> tileCover(Point<double> tl,
+                                       Point<double> tr,
+                                       Point<double> br,
+                                       Point<double> bl,
                                        const Point<double>& c,
-                                       uint8_t z) {
+                                       uint8_t z,
+                                       double bearing = 0,
+                                       double pitch = 0) {
     const int32_t tiles = 1 << z;
 
     struct ID {
@@ -92,6 +95,33 @@ std::vector<UnwrappedTileID> tileCover(const Point<double>& tl,
     };
 
     std::vector<ID> t;
+
+    constexpr double maxPitchForUnlimitedCoverage = 45.0 * DEG2RAD;
+
+    // Clamp the axis-aligned coverage area to the nearest 3 neighbor tiles.
+    if (pitch > maxPitchForUnlimitedCoverage) {
+        // Rotate the center according to bearing.
+        Point<double> rotatedCenter = util::rotate(c, bearing);
+
+        auto limitTileCoordinate = [&](Point<double>& point) {
+            // Rotate the tile coordinate according to bearing.
+            Point<double> rotated = util::rotate(point, bearing);
+
+            auto clampAxis = [](double a, double b) -> double {
+                return util::clamp(a, a >= b ? b : b - 3.0, a >= b ? b + 3.0 : b);
+            };
+            rotated.x = clampAxis(rotated.x, rotatedCenter.x);
+            rotated.y = clampAxis(rotated.y, rotatedCenter.y);
+
+            // After clamping, rotate back to original value.
+            point = util::rotate(rotated, -bearing);
+        };
+
+        limitTileCoordinate(tl);
+        limitTileCoordinate(tr);
+        limitTileCoordinate(br);
+        limitTileCoordinate(bl);
+    }
 
     auto scanLine = [&](int32_t x0, int32_t x1, int32_t y) {
         int32_t x;
@@ -163,13 +193,15 @@ std::vector<UnwrappedTileID> tileCover(const TransformState& state, uint8_t z) {
 
     const double w = state.getSize().width;
     const double h = state.getSize().height;
+
+    // top-left, top-right, bottom-right, bottom-left, center
     return tileCover(
         TileCoordinate::fromScreenCoordinate(state, z, { 0,   0   }).p,
         TileCoordinate::fromScreenCoordinate(state, z, { w,   0   }).p,
         TileCoordinate::fromScreenCoordinate(state, z, { w,   h   }).p,
         TileCoordinate::fromScreenCoordinate(state, z, { 0,   h   }).p,
         TileCoordinate::fromScreenCoordinate(state, z, { w/2, h/2 }).p,
-        z);
+        z, state.getAngle(), state.getPitch());
 }
 
 std::vector<UnwrappedTileID> tileCover(const Geometry<double>& geometry, uint8_t z) {

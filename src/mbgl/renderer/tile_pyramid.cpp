@@ -114,7 +114,7 @@ void TilePyramid::update(const std::vector<Immutable<style::Layer::Impl>>& layer
             // Request lower zoom level tiles (if configured to do so) in an attempt
             // to show something on the screen faster at the cost of a little of bandwidth.
             if (parameters.prefetchZoomDelta) {
-                panZoom = std::max<int32_t>(tileZoom - parameters.prefetchZoomDelta, zoomRange.min);
+                panZoom = util::clamp(tileZoom - parameters.prefetchZoomDelta, int32_t(zoomRange.min), int32_t(zoomRange.max) - parameters.prefetchZoomDelta);
             }
 
             if (panZoom < idealZoom) {
@@ -184,8 +184,8 @@ void TilePyramid::update(const std::vector<Immutable<style::Layer::Impl>>& layer
     renderTiles.clear();
 
     if (!panTiles.empty()) {
-        algorithm::updateRenderables(getTileFn, createTileFn, retainTileFn,
-                [](const UnwrappedTileID&, Tile&) {}, panTiles, zoomRange, panZoom);
+        algorithm::updateRenderables(getTileFn, createTileFn, retainTileFn, renderTileFn,
+                                     panTiles, zoomRange, panZoom);
     }
 
     algorithm::updateRenderables(getTileFn, createTileFn, retainTileFn, renderTileFn,
