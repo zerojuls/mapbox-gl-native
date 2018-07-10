@@ -4690,12 +4690,15 @@ public:
 
 - (void)setLocationManager:(id<MGLLocationManager>)locationManager
 {
-    _locationManager = locationManager;
-    _locationManager.delegate = self;
-    
     if (!locationManager) {
+        [self.locationManager stopUpdatingLocation];
+        [self.locationManager stopUpdatingHeading];
+        self.locationManager.delegate = nil;
         _showsUserLocation = NO;
     }
+    _locationManager = locationManager;
+    _locationManager.delegate = self;
+
 }
 
 - (void)validateLocationServices
