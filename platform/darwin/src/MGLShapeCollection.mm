@@ -13,6 +13,7 @@
 - (instancetype)initWithShapes:(NSArray<MGLShape *> *)shapes {
     if (self = [super init]) {
         _shapes = shapes.copy;
+        self.enabled = YES;
     }
     return self;
 }
@@ -20,6 +21,7 @@
 - (instancetype)initWithCoder:(NSCoder *)decoder {
     if (self = [super initWithCoder:decoder]) {
         _shapes = [decoder decodeObjectOfClass:[NSArray class] forKey:@"shapes"];
+        self.enabled = [decoder decodeBoolForKey:@"enabled"];
     }
     return self;
 }
@@ -27,6 +29,7 @@
 - (void)encodeWithCoder:(NSCoder *)coder {
     [super encodeWithCoder:coder];
     [coder encodeObject:_shapes forKey:@"shapes"];
+    [coder encodeBool:self.enabled forKey:@"enabled"];
 }
 
 - (BOOL)isEqual:(id)other {
