@@ -2,6 +2,12 @@
 
 Mapbox welcomes participation and contributions from everyone. Please read [CONTRIBUTING.md](../../CONTRIBUTING.md) to get started.
 
+## master
+
+### Other changes
+
+* Changed `-[MGLMapSnapshotter cancel]` to call the completion block (originally passed to `-[MGLMapSnapshotter startWithQueue:completionHandler:]`) with an `NSError` (error code `MGLErrorCodeSnapshotUserCancelled`) if the snapshot has not finished. ([#12355](https://github.com/mapbox/mapbox-gl-native/pull/12355))
+ 
 ## 4.2.0
 
 ### Packaging
