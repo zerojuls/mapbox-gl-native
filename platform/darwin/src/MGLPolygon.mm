@@ -22,7 +22,6 @@
 
 - (instancetype)initWithCoordinates:(const CLLocationCoordinate2D *)coords count:(NSUInteger)count interiorPolygons:(NSArray<MGLPolygon *> *)interiorPolygons {
     if (self = [super initWithCoordinates:coords count:count]) {
-        self.enabled = YES;
         if (interiorPolygons.count) {
             _interiorPolygons = interiorPolygons;
         }

@@ -4064,7 +4064,7 @@ public:
             {
                 return true;
             }
-
+            
             MGLAnnotationContext annotationContext = _annotationContextsByAnnotationTag.at(annotationTag);
             CGRect annotationRect;
             
