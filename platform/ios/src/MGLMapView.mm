@@ -694,6 +694,9 @@ public:
     
     [self.attributionButtonConstraints removeAllObjects];
     self.attributionButtonConstraints = nil;
+    
+    self.locationManager.delegate = nil;
+    self.locationManager = nil;
 }
 
 - (void)setDelegate:(nullable id<MGLMapViewDelegate>)delegate
@@ -4694,7 +4697,6 @@ public:
         [self.locationManager stopUpdatingLocation];
         [self.locationManager stopUpdatingHeading];
         self.locationManager.delegate = nil;
-        _showsUserLocation = NO;
     }
     _locationManager = locationManager;
     _locationManager.delegate = self;
@@ -4709,7 +4711,7 @@ public:
     {
         // If no custom location manager is provided will use the internal implementation.
         if (!self.locationManager) {
-            self.locationManager = [[MGLCLLocationManager alloc] init];
+            self.locationManager = [[CLLocationManager alloc] init];
         }
 
         if (self.locationManager.authorizationStatus == kCLAuthorizationStatusNotDetermined)
@@ -4752,8 +4754,6 @@ public:
     {
         [self.locationManager stopUpdatingLocation];
         [self.locationManager stopUpdatingHeading];
-        self.locationManager.delegate = nil;
-        self.locationManager = nil;
     }
 }
 
