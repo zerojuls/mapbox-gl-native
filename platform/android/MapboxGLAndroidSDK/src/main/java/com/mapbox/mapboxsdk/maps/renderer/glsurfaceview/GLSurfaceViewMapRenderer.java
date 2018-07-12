@@ -3,6 +3,7 @@ package com.mapbox.mapboxsdk.maps.renderer.glsurfaceview;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
+import android.support.annotation.ColorInt;
 import com.mapbox.mapboxsdk.maps.renderer.MapRenderer;
 import com.mapbox.mapboxsdk.maps.renderer.egl.EGLConfigChooser;
 
@@ -21,8 +22,11 @@ public class GLSurfaceViewMapRenderer extends MapRenderer implements GLSurfaceVi
 
   private final GLSurfaceView glSurfaceView;
 
-  public GLSurfaceViewMapRenderer(Context context, GLSurfaceView glSurfaceView, String localIdeographFontFamily) {
-    super(context, localIdeographFontFamily);
+  public GLSurfaceViewMapRenderer(Context context,
+                                  GLSurfaceView glSurfaceView,
+                                  String localIdeographFontFamily,
+                                  @ColorInt int clearColor) {
+    super(context, localIdeographFontFamily, clearColor);
     this.glSurfaceView = glSurfaceView;
     glSurfaceView.setEGLContextClientVersion(2);
     glSurfaceView.setEGLConfigChooser(new EGLConfigChooser());

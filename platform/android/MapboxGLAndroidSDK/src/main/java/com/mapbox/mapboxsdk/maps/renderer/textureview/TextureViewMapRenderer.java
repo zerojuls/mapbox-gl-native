@@ -1,6 +1,7 @@
 package com.mapbox.mapboxsdk.maps.renderer.textureview;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.view.TextureView;
 
@@ -30,8 +31,9 @@ public class TextureViewMapRenderer extends MapRenderer {
   public TextureViewMapRenderer(@NonNull Context context,
                                 @NonNull TextureView textureView,
                                 String localIdeographFontFamily,
-                                boolean translucentSurface) {
-    super(context, localIdeographFontFamily);
+                                boolean translucentSurface,
+                                @ColorInt int foregroundLoadColor) {
+    super(context, localIdeographFontFamily, foregroundLoadColor);
     this.translucentSurface = translucentSurface;
     renderThread = new TextureViewRenderThread(textureView, this);
     renderThread.start();

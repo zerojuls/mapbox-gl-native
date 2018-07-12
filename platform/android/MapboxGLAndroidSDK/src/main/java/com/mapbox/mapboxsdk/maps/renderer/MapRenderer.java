@@ -5,6 +5,7 @@ import android.support.annotation.CallSuper;
 
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.storage.FileSource;
+import com.mapbox.mapboxsdk.utils.ColorUtils;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -21,13 +22,19 @@ public abstract class MapRenderer implements MapRendererScheduler {
   // Holds the pointer to the native peer after initialisation
   private long nativePtr = 0;
 
+  // The color shown when the map style is loading
+  private final float[] foregroundRgbaColor;
+
   private MapboxMap.OnFpsChangedListener onFpsChangedListener;
 
-  public MapRenderer(Context context, String localIdeographFontFamily) {
-
+  public MapRenderer(Context context, String localIdeographFontFamily, int foregroundLoadColor) {
     FileSource fileSource = FileSource.getInstance(context);
     float pixelRatio = context.getResources().getDisplayMetrics().density;
     String programCacheDir = context.getCacheDir().getAbsolutePath();
+
+    // convert android int color to GL rgba, range 0-1
+    foregroundRgbaColor = ColorUtils.colorToGlRgbaArray(foregroundLoadColor);
+
     // Initialise native peer
     nativeInitialize(this, fileSource, pixelRatio, programCacheDir, localIdeographFontFamily);
   }
@@ -63,30 +70,17 @@ public abstract class MapRenderer implements MapRendererScheduler {
 
   @CallSuper
   protected void onSurfaceChanged(GL10 gl, int width, int height) {
-    if (width < 0) {
-      throw new IllegalArgumentException("fbWidth cannot be negative.");
-    }
-
-    if (height < 0) {
-      throw new IllegalArgumentException("fbHeight cannot be negative.");
-    }
-
-    if (width > 65535) {
-      throw new IllegalArgumentException(
-        "fbWidth cannot be greater than 65535.");
-    }
-
-    if (height > 65535) {
-      throw new IllegalArgumentException(
-        "fbHeight cannot be greater than 65535.");
-    }
-
     gl.glViewport(0, 0, width, height);
     nativeOnSurfaceChanged(width, height);
   }
 
   @CallSuper
   protected void onDrawFrame(GL10 gl) {
+    // clear color with the foreground load color #10990
+    // on low end devices there is a race condition between
+    // when the gl surface is loaded and the onMapReady is called
+    gl.glClearColor(foregroundRgbaColor[0], foregroundRgbaColor[1], foregroundRgbaColor[2], foregroundRgbaColor[3]);
+
     nativeRender();
 
     if (onFpsChangedListener != null) {
@@ -138,5 +132,4 @@ public abstract class MapRenderer implements MapRendererScheduler {
       frames = 0;
     }
   }
-
 }
