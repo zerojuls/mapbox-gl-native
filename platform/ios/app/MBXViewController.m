@@ -57,7 +57,8 @@ typedef NS_ENUM(NSInteger, MBXSettingsAnnotationsRows) {
     MBXSettingsAnnotationsRemoveAnnotations,
     MBXSettingsAnnotationSelectRandomOffscreenPointAnnotation,
     MBXSettingsAnnotationCenterSelectedAnnotation,
-    MBXSettingsAnnotationAddVisibleAreaPolyline
+    MBXSettingsAnnotationAddVisibleAreaPolyline,
+    MBXSettingsAnnotationAddPolylineAndPointAnnotations
 };
 
 typedef NS_ENUM(NSInteger, MBXSettingsRuntimeStylingRows) {
@@ -401,7 +402,8 @@ CLLocationCoordinate2D randomWorldCoordinate() {
                 @"Remove Annotations",
                 @"Select an offscreen point annotation",
                 @"Center selected annotation",
-                @"Add visible area polyline"
+                @"Add visible area polyline",
+                @"Add a polyline and annotation views"
             ]];
             break;
         case MBXSettingsRuntimeStyling:
@@ -542,6 +544,10 @@ CLLocationCoordinate2D randomWorldCoordinate() {
 
                 case MBXSettingsAnnotationAddVisibleAreaPolyline:
                     [self addVisibleAreaPolyline];
+                    break;
+                
+                case MBXSettingsAnnotationAddPolylineAndPointAnnotations:
+                    [self addPolylineAndPointAnnotations];
                     break;
 
                 default:
@@ -1641,6 +1647,34 @@ CLLocationCoordinate2D randomWorldCoordinate() {
     MGLPolyline *line = [MGLPolyline polylineWithCoordinates:lineCoords
                                                        count:sizeof(lineCoords)/sizeof(lineCoords[0])];
     [self.mapView addAnnotation:line];
+}
+
+- (void)addPolylineAndPointAnnotations
+{
+    
+    CLLocationCoordinate2D coordinates[] = {
+        _mapView.visibleCoordinateBounds.ne,
+        _mapView.centerCoordinate,
+        _mapView.visibleCoordinateBounds.sw
+        
+    };
+    MGLPointAnnotation *annotation1 = [[MGLPointAnnotation alloc] init];
+    annotation1.title = @"NE";
+    annotation1.coordinate = coordinates[0];
+    
+    MGLPointAnnotation *annotation2 = [[MGLPointAnnotation alloc] init];
+    annotation2.title = @"Center";
+    annotation2.coordinate = coordinates[1];
+    
+    MGLPointAnnotation *annotation3 = [[MGLPointAnnotation alloc] init];
+    annotation3.title = @"SW";
+    annotation3.coordinate = coordinates[2];
+    
+    MGLPolyline *line = [MGLPolyline polylineWithCoordinates:coordinates count:3];
+    line.title = @"Polyline";
+    line.enabled = NO;
+    
+    [_mapView addAnnotations:@[annotation1, annotation2, annotation3, line]];
 }
 
 - (void)printTelemetryLogFile

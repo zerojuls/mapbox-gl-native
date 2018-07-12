@@ -4094,6 +4094,7 @@ public:
                     if (!((MGLShape *)annotation).enabled) {
                         return true;
                     }
+                    
                     return false;
                 }                
                 MGLAnnotationImage *annotationImage = [self imageOfAnnotationWithTag:annotationTag];
