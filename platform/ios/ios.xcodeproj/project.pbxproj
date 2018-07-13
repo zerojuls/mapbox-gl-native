@@ -355,7 +355,9 @@
 		96E516FF20005A4F00A02306 /* MGLMapboxEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = DA8848481CBAFB9800AB86E3 /* MGLMapboxEvents.h */; };
 		96E5170420005A6B00A02306 /* SMCalloutView.h in Headers */ = {isa = PBXBuildFile; fileRef = DA8848891CBB037E00AB86E3 /* SMCalloutView.h */; };
 		96F3F73C1F57124B003E2D2C /* MGLUserLocationHeadingIndicator.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F3F73B1F5711F1003E2D2C /* MGLUserLocationHeadingIndicator.h */; };
-		A4207E9420F91C8C009AD596 /* MGLAnnotationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A4207E9320F91C8C009AD596 /* MGLAnnotationTests.m */; };
+		A4207E9C20F92C8B009AD596 /* MGLUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = A4207E9B20F92C8B009AD596 /* MGLUITests.m */; };
+		A4207EA820F92FF6009AD596 /* MGLAnnotationIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A4207EA720F92FF6009AD596 /* MGLAnnotationIntegrationTests.m */; };
+		A4207EA920F930EC009AD596 /* MGLAnnotationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A4207E9320F91C8C009AD596 /* MGLAnnotationTests.m */; };
 		AC518DFF201BB55A00EBC820 /* MGLTelemetryConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = AC518DFD201BB55A00EBC820 /* MGLTelemetryConfig.h */; };
 		AC518E00201BB55A00EBC820 /* MGLTelemetryConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = AC518DFD201BB55A00EBC820 /* MGLTelemetryConfig.h */; };
 		AC518E03201BB56000EBC820 /* MGLTelemetryConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = AC518DFE201BB55A00EBC820 /* MGLTelemetryConfig.m */; };
@@ -632,6 +634,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DA8847D11CBAF91600AB86E3;
 			remoteInfo = dynamic;
+		};
+		A4207E9E20F92C8B009AD596 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA1DC9421CB6C1C2006E619F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 16376B2E1FFDB4B40000563E;
+			remoteInfo = "Integration Test Harness";
 		};
 		CABE5DAB2072FA660003AF3C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -996,6 +1005,10 @@
 		96E0272E1E57C7E7004B8E66 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		96F3F73B1F5711F1003E2D2C /* MGLUserLocationHeadingIndicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLUserLocationHeadingIndicator.h; sourceTree = "<group>"; };
 		A4207E9320F91C8C009AD596 /* MGLAnnotationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MGLAnnotationTests.m; sourceTree = "<group>"; };
+		A4207E9920F92C8B009AD596 /* MGLUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MGLUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4207E9B20F92C8B009AD596 /* MGLUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MGLUITests.m; sourceTree = "<group>"; };
+		A4207E9D20F92C8B009AD596 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A4207EA720F92FF6009AD596 /* MGLAnnotationIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MGLAnnotationIntegrationTests.m; sourceTree = "<group>"; };
 		AC518DFD201BB55A00EBC820 /* MGLTelemetryConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLTelemetryConfig.h; sourceTree = "<group>"; };
 		AC518DFE201BB55A00EBC820 /* MGLTelemetryConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MGLTelemetryConfig.m; sourceTree = "<group>"; };
 		ACF969F020CB04E500B23FB7 /* MMEEventsService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MMEEventsService.m; path = "vendor/mapbox-events-ios/MapboxMobileEvents/MMEEventsService.m"; sourceTree = SOURCE_ROOT; };
@@ -1300,6 +1313,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				CAA69DA4206DCD0E007279CD /* Mapbox.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4207E9620F92C8B009AD596 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1712,6 +1732,15 @@
 			name = Fixtures;
 			sourceTree = "<group>";
 		};
+		A4207E9A20F92C8B009AD596 /* MGLUITests */ = {
+			isa = PBXGroup;
+			children = (
+				A4207E9B20F92C8B009AD596 /* MGLUITests.m */,
+				A4207E9D20F92C8B009AD596 /* Info.plist */,
+			);
+			path = MGLUITests;
+			sourceTree = "<group>";
+		};
 		CA1B4A4F2099FA2800EDD491 /* Snapshotter Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -1724,6 +1753,7 @@
 			isa = PBXGroup;
 			children = (
 				CA6914B420E67F50002DB0EE /* MGLAnnotationViewIntegrationTests.m */,
+				A4207EA720F92FF6009AD596 /* MGLAnnotationIntegrationTests.m */,
 			);
 			name = Annotations;
 			sourceTree = "<group>";
@@ -1738,6 +1768,7 @@
 				DA2E88521CC036F400F24E7B /* SDK Tests */,
 				16376B301FFDB4B40000563E /* Integration Test Harness */,
 				16376B081FFD9DAF0000563E /* Integration Tests */,
+				A4207E9A20F92C8B009AD596 /* MGLUITests */,
 				DA1DC9921CB6DF24006E619F /* Frameworks */,
 				DAC07C951CBB2CAD000CB309 /* Configuration */,
 				DA1DC94B1CB6C1C2006E619F /* Products */,
@@ -1756,6 +1787,7 @@
 				DA25D5B91CCD9EDE00607828 /* Settings.bundle */,
 				16376B071FFD9DAF0000563E /* integration.xctest */,
 				16376B2F1FFDB4B40000563E /* Integration Test Harness.app */,
+				A4207E9920F92C8B009AD596 /* MGLUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2498,6 +2530,24 @@
 			productReference = 16376B2F1FFDB4B40000563E /* Integration Test Harness.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A4207E9820F92C8B009AD596 /* MGLUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A4207EA020F92C8B009AD596 /* Build configuration list for PBXNativeTarget "MGLUITests" */;
+			buildPhases = (
+				A4207E9520F92C8B009AD596 /* Sources */,
+				A4207E9620F92C8B009AD596 /* Frameworks */,
+				A4207E9720F92C8B009AD596 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A4207E9F20F92C8B009AD596 /* PBXTargetDependency */,
+			);
+			name = MGLUITests;
+			productName = MGLUITests;
+			productReference = A4207E9920F92C8B009AD596 /* MGLUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		DA1DC9491CB6C1C2006E619F /* iosapp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DA1DC9611CB6C1C2006E619F /* Build configuration list for PBXNativeTarget "iosapp" */;
@@ -2642,6 +2692,11 @@
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
 					};
+					A4207E9820F92C8B009AD596 = {
+						CreatedOnToolsVersion = 9.4.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 16376B2E1FFDB4B40000563E;
+					};
 					DA1DC9491CB6C1C2006E619F = {
 						CreatedOnToolsVersion = 7.3;
 						LastSwiftMigration = 0820;
@@ -2713,6 +2768,7 @@
 				DA2E88501CC036F400F24E7B /* test */,
 				16376B061FFD9DAF0000563E /* integration */,
 				16376B2E1FFDB4B40000563E /* Integration Test Harness */,
+				A4207E9820F92C8B009AD596 /* MGLUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -2732,6 +2788,13 @@
 			files = (
 				16376B3E1FFDB4B40000563E /* LaunchScreen.storyboard in Resources */,
 				16376B3B1FFDB4B40000563E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4207E9720F92C8B009AD596 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2837,6 +2900,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A4207E9520F92C8B009AD596 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A4207EA820F92FF6009AD596 /* MGLAnnotationIntegrationTests.m in Sources */,
+				A4207E9C20F92C8B009AD596 /* MGLUITests.m in Sources */,
+				A4207EA920F930EC009AD596 /* MGLAnnotationTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DA1DC9461CB6C1C2006E619F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2863,7 +2936,6 @@
 				409F43FD1E9E781C0048729D /* MGLMapViewDelegateIntegrationTests.swift in Sources */,
 				DA2E88651CC0382C00F24E7B /* MGLStyleTests.mm in Sources */,
 				DA2E88611CC0382C00F24E7B /* MGLGeometryTests.mm in Sources */,
-				A4207E9420F91C8C009AD596 /* MGLAnnotationTests.m in Sources */,
 				170C437D2029D97900863DF0 /* MGLHeatmapStyleLayerTests.mm in Sources */,
 				170C437C2029D96F00863DF0 /* MGLHeatmapColorTests.mm in Sources */,
 				357579801D501E09000B822E /* MGLFillStyleLayerTests.mm in Sources */,
@@ -3177,6 +3249,11 @@
 			isa = PBXTargetDependency;
 			target = DA8847D11CBAF91600AB86E3 /* dynamic */;
 			targetProxy = 165D0CE520005351009A3C66 /* PBXContainerItemProxy */;
+		};
+		A4207E9F20F92C8B009AD596 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 16376B2E1FFDB4B40000563E /* Integration Test Harness */;
+			targetProxy = A4207E9E20F92C8B009AD596 /* PBXContainerItemProxy */;
 		};
 		CABE5DAC2072FA660003AF3C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3493,6 +3570,48 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mapbox.Integration-Test-Harness";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A4207EA120F92C8B009AD596 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = MGLUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mapbox.MGLUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Integration Test Harness";
+			};
+			name = Debug;
+		};
+		A4207EA220F92C8B009AD596 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = MGLUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mapbox.MGLUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Integration Test Harness";
 			};
 			name = Release;
 		};
@@ -3913,6 +4032,15 @@
 			buildConfigurations = (
 				16376B431FFDB4B40000563E /* Debug */,
 				16376B441FFDB4B40000563E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A4207EA020F92C8B009AD596 /* Build configuration list for PBXNativeTarget "MGLUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A4207EA120F92C8B009AD596 /* Debug */,
+				A4207EA220F92C8B009AD596 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
