@@ -4091,12 +4091,13 @@ public:
             {
                 if ([annotation isKindOfClass:[MGLMultiPoint class]])
                 {
-                    if (!((MGLShape *)annotation).enabled) {
+                    if ( ! ((MGLShape *)annotation).enabled) {
                         return true;
                     }
                     
                     return false;
-                }                
+                }
+                
                 MGLAnnotationImage *annotationImage = [self imageOfAnnotationWithTag:annotationTag];
                 if ( ! annotationImage.enabled)
                 {
