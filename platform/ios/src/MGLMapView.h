@@ -298,12 +298,18 @@ MGL_EXPORT IB_DESIGNABLE
 
 /**
  The object that this map view uses to start and stop the delivery of location-related
- events.
+ updates.
  
- If setting this property to `nil` and setting `showsUseLocation` to `YES`, or
- if no custom manager is provided it will use the default implementation.
+ To receive the current user location implement `MGLMapViewDelegate`s delegate methods:
  
- Set the custom location manager before calling `showUserLocation`.
+ -[MGLMapViewDelegate mapView:didUpdateUserLocation:]
+ -[MGLMapViewDelegate mapView:didFailToLocateUserWithError:]
+ 
+ If setting this property to `nil` and setting `showsUserLocation` to `YES`, or
+ if no custom manager is provided this property is set to the default
+ location manager.
+ 
+ Set the custom location manager before calling `showsUserLocation`.
  */
 @property (nonatomic, null_resettable) id<MGLLocationManager> locationManager;
 
@@ -323,6 +329,9 @@ MGL_EXPORT IB_DESIGNABLE
  `NSLocationAlwaysUsageDescription` in its `Info.plist` to satisfy the
  requirements of the underlying Core Location framework when enabling this
  property.
+ 
+ If you implement a custom location manager. Set the `locationManager` before
+ calling `showsUserLocation`.
  */
 @property (nonatomic, assign) BOOL showsUserLocation;
 
